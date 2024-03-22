@@ -1,5 +1,5 @@
 ------- InflowWind INPUT FILE for OpenFAST v3.5.2 (dev) -------------------------------------------------------------------------
-Wind          inflow        - DLC 1.1
+Wind          inflow        - Steady wind 10ms
 ---------------------------------------------------------------------------------------------------------------
 False         Echo          - Echo input data to <RootName>.ech (flag)
 1             WindType      - switch for wind file type (1=steady; 2=uniform; 3=binary TurbSim FF; 4=binary Bladed-style FF; 5=HAWC format; 6=User defined; 7=native Bladed FF)
@@ -19,7 +19,7 @@ False   	  VelInterpCubic - Use cubic interpolation for velocity in time (false=
 90            RefHt_Uni     - Reference height for horizontal wind speed
 125.88        RefLength     - Reference length for linear horizontal and vertical sheer
 ================== Parameters for Binary TurbSim Full-Field files   [used only for WindType = 3] ==============
-"Wind/08ms.wnd" FileName_BTS  - Name of the Full field wind file to use (.bts)
+"unused"      FileName_BTS  - Name of the Full field wind file to use (.bts)
 ================== Parameters for Binary Bladed-style Full-Field files   [used only for WindType = 4] =========
 "unused"      FileNameRoot  - WindType=4: Rootname of the full-field wind file to use (.wnd, .sum); WindType=7: name of the intermediate file with wind scaling values
 False         TowerFile     - Have tower file (.twr) (flag) ignored when WindType = 7
