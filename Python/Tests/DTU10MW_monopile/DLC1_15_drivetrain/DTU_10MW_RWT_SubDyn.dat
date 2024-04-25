@@ -1,0 +1,249 @@
+----------- SubDyn MultiMember Support Structure Input File ------------
+SubDyn        template      - file. Compatible with OpenFAST v3.5.0
+-------------------------- SIMULATION CONTROL ---------------------------------
+True          Echo          - Echo input data to "<rootname>.SD.ech" (flag)
+0.0025        SDdeltaT      - Local Integration Step. If "default", the glue-code integration step will be used.
+3             IntMethod     - Integration Method [1/2/3/4 = RK4/AB4/ABM4/AM2].
+True          SttcSolve     - Solve dynamics about static equilibrium point
+False         GuyanLoadCorrection - Include extra moment from lever arm at interface and rotate FEM for floating. !Recommended to set to true
+-------------------- FEA and CRAIG-BAMPTON PARAMETERS---------------------------
+1             FEMMod        - FEM switch: element model in the FEM. [1= Euler-Bernoulli(E-B); 2=Tapered E-B (unavailable); 3= 2-node Timoshenko; 4= 2-node tapered Timoshenko (unavailable)]
+1             NDiv          - Number of sub-elements per member|
+True          CBMod         - [T/F] If True perform C-B reduction, else full FEM dofs will be retained. If True, select Nmodes to retain in C-B reduced system.
+14            Nmodes        - Number of internal modes to retain (ignored if CBMod=False). If Nmodes=0 --> Guyan Reduction.
+1, 1, 1, 1, 1 JDampings     - Damping Ratios for each retained mode (% of critical) If Nmodes>0, list Nmodes structural damping ratios for each retained mode (% of critical), or a single damping ratio to be applied to all retained modes. (last entered value will be used for all remaining modes).
+1             GuyanDampMod  - Guyan damping {0=none, 1=Rayleigh Damping, 2=user specified 6x6 matrix}
+0.0129, 0.0004 RayleighDamp  - Mass and stiffness proportional damping coefficients (Rayleigh Damping) [only if GuyanDampMod=1]
+6             GuyanDampSize - Guyan damping matrix (6x6) [only if GuyanDampMod=2]
+              0	              0	              0	              0	              0	              0
+              0	              0	              0	              0	              0	              0
+              0	              0	        1066100	              0	              0	              0
+              0	              0	              0	              0	              0	              0
+              0	              0	              0	              0	              0	              0
+              0	              0	              0	              0	              0	              0
+---- STRUCTURE JOINTS: joints connect structure members (~Hydrodyn Input File)---
+34            NJoints       - Number of joints (-)
+JointID         JointXss        JointYss        JointZss        JointType       JointDirX       JointDirY       JointDirZ       JointStiff     
+(-)             (m)             (m)             (m)             (-)             (-)             (-)             (-)             (Nm/rad)       
+              1	              0	              0	            -30	              1	              0	              0	              0	              0
+              2	              0	              0	            -20	              1	              0	              0	              0	              0
+              3	              0	              0	            -10	              1	              0	              0	              0	              0
+              4	              0	              0	              0	              1	              0	              0	              0	              0
+              5	              0	              0	             10	              1	              0	              0	              0	              0
+              6	              0	              0	 2.05054484e+01	              1	              0	              0	              0	              0
+              7	              0	              0	 3.10108968e+01	              1	              0	              0	              0	              0
+              8	              0	              0	 4.15163452e+01	              1	              0	              0	              0	              0
+              9	              0	              0	 5.20217937e+01	              1	              0	              0	              0	              0
+             10	              0	              0	 6.25272421e+01	              1	              0	              0	              0	              0
+             11	              0	              0	 7.30326905e+01	              1	              0	              0	              0	              0
+             12	              0	              0	 8.35381389e+01	              1	              0	              0	              0	              0
+             13	              0	              0	 9.40435873e+01	              1	              0	              0	              0	              0
+             14	              0	              0	 1.04549036e+02	              1	              0	              0	              0	              0
+             15	              0	              0	 1.15630000e+02	              1	              0	              0	              0	              0
+             16	              0	              0	 1.17053900e+02	              1	              0	              0	              0	              0
+             17	-4.13000000e+00	              0	 1.17053900e+02	              1	              0	              0	              0	              0
+             18	-2.61000000e+00	              0	 1.17053900e+02	              1	              0	              0	              0	              0
+             19	-4.20000000e-01	              0	 1.17053900e+02	              1	              0	              0	              0	              0
+             20	 5.03188400e+00	 8.25885000e-01	 1.17940600e+02	              1	              0	              0	              0	              0
+             21	 5.03188400e+00	              0	 1.17053900e+02	              1	              0	              0	              0	              0
+             22	-4.65499461e+00	              0	 1.18787259e+02	              1	              0	              0	              0	              0
+             23	-4.13000000e+00	              0	 1.18741328e+02	              1	              0	              0	              0	              0
+             24	-2.61000000e+00	              0	 1.18608345e+02	              1	              0	              0	              0	              0
+             25	-1.92362185e+00	              0	 1.18547655e+02	              1	              0	              0	              0	              0
+             26	-4.20000000e-01	              0	 1.18416745e+02	              1	              0	              0	              0	              0
+             27	-4.13000000e+00	              0	 1.18741328e+02	              1	              0	              0	              0	              0
+             28	-2.61000000e+00	              0	 1.18608345e+02	              1	              0	              0	              0	              0
+             29	-4.20000000e-01	 1.92422200e+00	 1.18416745e+02	              1	              0	              0	              0	              0
+             30	-4.20000000e-01	 1.92422200e+00	 1.18416745e+02	              1	              0	              0	              0	              0
+             31	-4.20000000e-01	-1.92422200e+00	 1.18416745e+02	              1	              0	              0	              0	              0
+             32	-4.20000000e-01	-1.92422200e+00	 1.18416745e+02	              1	              0	              0	              0	              0
+             33	-2.39406000e-01	 2.29700000e-02	 1.18405524e+02	              1	              0	              0	              0	              0
+             34	 5.15514020e+00	-1.67109573e-01	 1.18424330e+02	              1	              0	              0	              0	              0
+------------------- BASE REACTION JOINTS: 1/0 for Locked/Free DOF @ each Reaction Node ---------------------
+1             NReact        - Number of Joints with reaction forces; be sure to remove all rigid motion DOFs of the structure (else det([K])=[0])
+RJointID        RctTDXss        RctTDYss        RctTDZss        RctRDXss        RctRDYss        RctRDZss        SSIfile        
+(-)             (flag)          (flag)          (flag)          (flag)          (flag)          (flag)          (string)       
+              1	0	0	0	0	0	0	"Stiffness_matrix.txt"
+------- INTERFACE JOINTS: 1/0 for Locked (to the TP)/Free DOF @each Interface Joint (only Locked-to-TP implemented thus far (=rigid TP)) ---------
+1             NInterf       - Number of interface joints locked to the Transition Piece (TP): be sure to remove all rigid motion dofs
+IJointID        ItfTDXss        ItfTDYss        ItfTDZss        ItfRDXss        ItfRDYss        ItfRDZss       
+(-)             (flag)          (flag)          (flag)          (flag)          (flag)          (flag)         
+             22	              1	              1	              1	              1	              1	              1
+----------------------------------- MEMBERS --------------------------------------
+36            NMembers      - Number of frame members
+MemberID        MJointID1       MJointID2       MPropSetID1     MPropSetID2     MType           COSMID         
+(-)             (-)             (-)             (-)             (-)             (-)             (-)            
+              1	              1	              2	              2	              2	              1	             -1
+              2	              2	              3	              2	              2	              1	             -1
+              3	              3	              4	              2	              2	              1	             -1
+              4	              4	              5	              2	              2	              1	             -1
+              5	              5	              6	              3	              4	              1	             -1
+              6	              6	              7	              5	              6	              1	             -1
+              7	              7	              8	              7	              8	              1	             -1
+              8	              8	              9	              9	             10	              1	             -1
+              9	              9	             10	             11	             12	              1	             -1
+             10	             10	             11	             13	             14	              1	             -1
+             11	             11	             12	             15	             16	              1	             -1
+             12	             12	             13	             17	             18	              1	             -1
+             13	             13	             14	             19	             20	              1	             -1
+             14	             14	             15	             21	             22	              1	             -1
+             15	             16	             15	              1	              1	              3	             -1
+             16	             17	             18	              2	              2	              3	             -1
+             17	             18	             19	              2	              2	              3	             -1
+             18	             19	             16	              2	              2	              3	             -1
+             19	             20	             21	              1	              1	              3	             -1
+             20	             16	             21	              2	              2	              3	             -1
+             21	             22	             23	             23	             23	              1	             -1
+             22	             23	             24	             24	             24	              1	             -1
+             23	             24	             25	             25	             25	              1	             -1
+             24	             25	             26	              1	              1	              3	             -1
+             25	             23	             27	              1	              1	              5	              1
+             26	             27	             17	              1	              1	              3	             -1
+             27	             24	             28	              2	              2	              5	              1
+             28	             28	             18	              1	              1	              3	             -1
+             29	             26	             29	              1	              1	              3	             -1
+             30	             29	             30	              3	              3	              5	              1
+             31	             30	             19	              1	              1	              3	             -1
+             32	             26	             31	              1	              1	              3	             -1
+             33	             31	             32	              3	              3	              5	              1
+             34	             32	             19	              1	              1	              3	             -1
+             35	             33	             26	              1	              1	              3	             -1
+             36	             34	             15	              1	              1	              3	             -1
+------------------ CIRCULAR BEAM CROSS-SECTION PROPERTIES -----------------------------
+25            NPropSets     - Number of structurally unique cross-sections
+PropSetID       YoungE          ShearG          MatDens         XsecD           XsecT          
+(-)             (N/m2)          (N/m2)          (kg/m3)         (m)             (m)            
+              1	210000000000000	  8080000000000	              1	              1	 4.00000000e-01
+              2	   210000000000	    80800000000	           8500	              9	 1.10000000e-01
+              3	   210000000000	    80800000000	           8500	 8.30000000e+00	 3.80000000e-02
+              4	   210000000000	    80800000000	           8500	 8.02150000e+00	 3.80000000e-02
+              5	   210000000000	    80800000000	           8500	 8.02150000e+00	 3.60000000e-02
+              6	   210000000000	    80800000000	           8500	 7.74310000e+00	 3.60000000e-02
+              7	   210000000000	    80800000000	           8500	 7.74300000e+00	 3.40000000e-02
+              8	   210000000000	    80800000000	           8500	 7.46450000e+00	 3.40000000e-02
+              9	   210000000000	    80800000000	           8500	 7.46460000e+00	 3.20000000e-02
+             10	   210000000000	    80800000000	           8500	 7.18610000e+00	 3.20000000e-02
+             11	   210000000000	    80800000000	           8500	 7.18610000e+00	 3.00000000e-02
+             12	   210000000000	    80800000000	           8500	 6.90760000e+00	 3.00000000e-02
+             13	   210000000000	    80800000000	           8500	 6.90760000e+00	 2.80000000e-02
+             14	   210000000000	    80800000000	           8500	 6.62910000e+00	 2.80000000e-02
+             15	   210000000000	    80800000000	           8500	 6.62910000e+00	 2.60000000e-02
+             16	   210000000000	    80800000000	           8500	 6.35070000e+00	 2.60000000e-02
+             17	   210000000000	    80800000000	           8500	 6.35060000e+00	 2.40000000e-02
+             18	   210000000000	    80800000000	           8500	 6.07210000e+00	 2.40000000e-02
+             19	   210000000000	    80800000000	           8500	 6.07210000e+00	 2.20000000e-02
+             20	   210000000000	    80800000000	           8500	 5.79360000e+00	 2.20000000e-02
+             21	   210000000000	    80800000000	           8500	 5.79370000e+00	 2.00000000e-02
+             22	   210000000000	    80800000000	           8500	 5.50000000e+00	 2.00000000e-02
+             23	      658914991	     6642536188	           4014	 3.70000000e+00	 1.52787600e+00
+             24	   219670692621	  2403021505317	           4014	 1.20000000e+00	 4.03458000e-01
+             25	   154049834767	  1644386902689	           4014	              1	 3.37654000e-01
+----------------- ARBITRARY BEAM CROSS-SECTION PROPERTIES -----------------------------
+0             NXPropSets    - Number of structurally unique non-circular cross-sections (if 0 the following table is ignored)
+PropSetID       YoungE          ShearG          MatDens         XsecA           XsecAsx         XsecAsy         XsecJxx         XsecJyy         XsecJ0         
+(-)             (N/m2)          (N/m2)          (kg/m3)         (m2)            (m2)            (m2)            (m4)            (m4)            (m4)           
+-------------------------- CABLE PROPERTIES  -------------------------------------
+0             NCablePropSets - Number of cable cable properties
+PropSetID       EA              MatDens         T0              CtrlChannel    
+(-)             (N)             (kg/m)          (N)             (-)            
+----------------------- RIGID LINK PROPERTIES ------------------------------------
+2             NRigidPropSets - Number of rigid link properties
+PropSetID       MatDens        
+(-)             (kg/m)         
+              1	              0
+              2	 1.11759369e+04
+------------------------ SPRING ELEMENT PROPERTIES ------------------------------------
+3             NSpringPropSets - Number of spring properties
+PropSetID       k11             k12             k13             k14             k15             k16             k22             k23             k24             k25             k26             k33             k34             k35             k36             k44             k45             k46             k55             k56             k66            
+(-)             (N/m)           (N/m)           (N/m)           (N/rad)         (N/rad)         (N/rad)         (N/m)           (N/m)           (N/rad)         (N/rad)         (N/rad)         (N/m)           (N/rad)         (N/rad)         (N/rad)         (Nm/rad)        (Nm/rad)        (Nm/rad)        (Nm/rad)        (Nm/rad)        (Nm/rad)       
+              1	     8924400000	              0	              0	              0	              0	              0	    12520000000	              0	              0	              0	              0	     3524500000	              0	              0	              0	     1210800000	              0	              0	      862240000	              0	              0
+              2	     5378100000	              0	              0	              0	              0	              0	     8782300000	              0	              0	              0	              0	     3387900000	              0	              0	              0	      592240000	              0	              0	      362150000	              0	              0
+              3	      240000000	              0	              0	              0	              0	              0	    24000000000	              0	              0	              0	              0	      120000000	              0	              0	              0	      240000000	              0	              0	      240000000	              0	      120000000
+---------------------- MEMBER COSINE MATRICES COSM(i,j) ------------------------
+1             NCOSMs        - Number of unique cosine matrices (i.e., of unique member alignments including principal axis rotations); ignored if NXPropSets=0 or 9999 in any element below
+COSMID          COSM11          COSM12          COSM13          COSM21          COSM22          COSM23          COSM31          COSM32          COSM33         
+(-)             (-)             (-)             (-)             (-)             (-)             (-)             (-)             (-)             (-)            
+              1	              0	             -1	              0	-8.71563500e-02	              0	-9.96194600e-01	 9.96194600e-01	              0	-8.71563500e-02
+------------------------ JOINT ADDITIONAL CONCENTRATED MASSES--------------------------
+3             NCmass        - Number of joints with concentrated masses; Global Coordinate System
+CMJointID       JMass           JMXX            JMYY            JMZZ            JMXY            JMXZ            JMYZ            MCGX            MCGY            MCGZ           
+(-)             (kg)            (kg*m^2)        (kg*m^2)        (kg*m^2)        (kg*m^2)        (kg*m^2)        (kg*m^2)        (m)             (m)             (m)            
+             20	          40000	 6.07689900e+00	            800	 7.93923000e+02	              0	 6.94600000e+01	              0	              0	              0	              0
+             33	          66610	          41700	         106086	         107451	              0	              0	              0	              0	              0	              0
+             34	 2.06842918e+05	              0	              0	              0	              0	              0	              0	              0	              0	              0
+---------------------------- OUTPUT: SUMMARY & OUTFILE ------------------------------
+True          SumPrint      - Output a Summary File (flag).It contains: matrices K,M and C-B reduced M_BB, M-BM, K_BB, K_MM(OMG^2), PHI_R, PHI_L. It can also contain COSMs if requested.
+1             OutCBModes    - Output Guyan and Craig-Bampton modes {0: No output, 1: JSON output}, (flag)
+0             OutFEMModes   - Output first 30 FEM modes {0: No output, 1: JSON output} (flag)
+False         OutCOSM       - Output cosine matrices with the selected output member forces (flag)
+True          OutAll        - [T/F] Output all members' end forces
+2             OutSwtch      - [1/2/3] Output requested channels to: 1=<rootname>.SD.out; 2=<rootname>.out (generated by FAST); 3=both files.
+True          TabDelim      - Generate a tab-delimited output in the <rootname>.SD.out file
+1             OutDec        - Decimation of output in the <rootname>.SD.out file
+"ES11.4e2"    OutFmt        - Output format for numerical results in the <rootname>.SD.out file
+"A11"         OutSFmt       - Output format for header strings in the <rootname>.SD.out file
+------------------------- MEMBER OUTPUT LIST ------------------------------------------
+9             NMOutputs     - Number of members whose forces/displacements/velocities/accelerations will be output (-) [Must be <= 9].
+MemberID        NOutCnt         NodeCnt        
+(-)             (-)             (-)            
+              1	              2	              1	              2
+             14	              2	              1	              2
+             21	              2	              1	              2
+             25	              2	              1	              2
+             27	              2	              1	              2
+             30	              2	              1	              2
+             33	              2	              1	              2
+             22	              2	              1	              2
+             23	              2	              1	              2
+------------------------- SDOutList: The next line(s) contains a list of output parameters that will be output in <rootname>.SD.out or <rootname>.out. ------
+"M1N1TDxss, M1N1TDyss, M1N1TDzss, M2N2TDxss, M2N2TDyss, M2N2TDzss" 		 - Tower base and tower top displacements
+"M1N1RDxe, M1N1RDye, M1N1RDze, M2N2RDxe, M2N2RDye, M2N2RDze" 		 - Tower base and tower top rotations (local coords)
+"M2N2TAxe, M2N2TAye, M2N2TAze, M2N2RAxe, M2N2RAye, M2N2RAze" 		 - Tower base and tower top accelerations (local coords)
+"M1N1FKxe, M1N1FKye, M1N1FKze, M2N2FKxe, M2N2FKye, M2N2FKze" 		 - Static (elastic) forces (tower base and tower top)
+"M1N1MKxe, M1N1MKye, M1N1MKze, M2N2MKxe, M2N2MKye, M2N2MKze" 		 - Static (elastic) moments (tower base and tower top)
+"M1N1FMxe, M1N1FMye, M1N1FMze, M2N2FMxe, M2N2FMye, M2N2FMze" 		 - Dynamic (inertia) forces (tower base and tower top)
+"M1N1MMxe, M1N1MMye, M1N1MMze, M2N2MMxe, M2N2MMye, M2N2MMze" 		 - Dynamic (inertia) moments (tower base and tower top)
+"M3N1TDxss, M3N1TDyss, M3N1TDzss, M3N1RDxe, M3N1RDye, M3N1RDze" 		 - Shaft tip motion
+"M3N2TDxss, M3N2TDyss, M3N2TDzss, M3N2RDxe, M3N2RDye, M3N2RDze" 		 - Shaft tip motion
+"M3N1TAxe, M3N1TAye, M3N1TAze, M3N1RAxe, M3N1RAye, M3N1RAze" 		 - Shaft accelerations (local coords)
+"M3N2TAxe, M3N2TAye, M3N2TAze, M3N2RAxe, M3N2RAye, M3N2RAze" 		 - Shaft accelerations (local coords)
+"M3N1FMxe, M3N1FMye, M3N1FMze, M3N2FMxe, M3N2FMye, M3N2FMze" 		 - Dynamic (inertia) forces (shaft to MB1)
+"M3N1MMxe, M3N1MMye, M3N1MMze, M3N2MMxe, M3N2MMye, M3N2MMze" 		 - Dynamic (inertia) moments (shaft to MB1)
+"M3N1FKxe, M3N1FKye, M3N1FKze, M3N2FKxe, M3N2FKye, M3N2FKze" 		 - Static (elastic) forces (shaft to MB1)
+"M3N1MKxe, M3N1MKye, M3N1MKze, M3N2MKxe, M3N2MKye, M3N2MKze" 		 - Static (elastic) moments (shaft to MB1)
+"M4N1TDxss, M4N1TDyss, M4N1TDzss, M4N1RDxe, M4N1RDye, M4N1RDze" 		 - MB1 flex beam motion
+"M4N2TDxss, M4N2TDyss, M4N2TDzss, M4N2RDxe, M4N2RDye, M4N2RDze" 		 - MB1 flex beam motion
+"M4N1TAxe, M4N1TAye, M4N1TAze, M4N1RAxe, M4N1RAye, M4N1RAze" 		 - MB1 accelerations (local coords)
+"M4N2TAxe, M4N2TAye, M4N2TAze, M4N2RAxe, M4N2RAye, M4N2RAze" 		 - MB1 accelerations (local coords)
+"M4N1FMxe, M4N1FMye, M4N1FMze, M4N2FMxe, M4N2FMye, M4N2FMze" 		 - Dynamic (inertia) forces (MB1 flex beam)
+"M4N1MMxe, M4N1MMye, M4N1MMze, M4N2MMxe, M4N2MMye, M4N2MMze" 		 - Dynamic (inertia) moments (MB1 flex beam)
+"M4N1FKxe, M4N1FKye, M4N1FKze, M4N2FKxe, M4N2FKye, M4N2FKze" 		 - Static (elastic) forces (MB1 flex beam)
+"M4N1MKxe, M4N1MKye, M4N1MKze, M4N2MKxe, M4N2MKye, M4N2MKze" 		 - Static (elastic) moments (MB1 flex beam)
+"M5N1TDxss, M5N1TDyss, M5N1TDzss, M5N1RDxe, M5N1RDye, M5N1RDze" 		 - MB2 flex beam motion
+"M5N2TDxss, M5N2TDyss, M5N2TDzss, M5N2RDxe, M5N2RDye, M5N2RDze" 		 - MB2 flex beam motion
+"M5N1FMxe, M5N1FMye, M5N1FMze, M5N2FMxe, M5N2FMye, M5N2FMze" 		 - Dynamic (inertia) forces (MB2 flex beam)
+"M5N1MMxe, M5N1MMye, M5N1MMze, M5N2MMxe, M5N2MMye, M5N2MMze" 		 - Dynamic (inertia) moments (MB2 flex beam)
+"M5N1FKxe, M5N1FKye, M5N1FKze, M5N2FKxe, M5N2FKye, M5N2FKze" 		 - Static (elastic) forces (MB2 flex beam)
+"M5N1MKxe, M5N1MKye, M5N1MKze, M5N2MKxe, M5N2MKye, M5N2MKze" 		 - Static (elastic) moments (MB2 flex beam)
+"M6N1TDxss, M6N1TDyss, M6N1TDzss, M6N1RDxe, M6N1RDye, M6N1RDze" 		 - GBSupp1 flex beam motion
+"M6N2TDxss, M6N2TDyss, M6N2TDzss, M6N2RDxe, M6N2RDye, M6N2RDze" 		 - GBSupp1 flex beam motion
+"M6N1FMxe, M6N1FMye, M6N1FMze, M6N2FMxe, M6N2FMye, M6N2FMze" 		 - Dynamic (inertia) forces (GBSupp1 flex beam)
+"M6N1MMxe, M6N1MMye, M6N1MMze, M6N2MMxe, M6N2MMye, M6N2MMze" 		 - Dynamic (inertia) moments (GBSupp1 flex beam)
+"M6N1FKxe, M6N1FKye, M6N1FKze, M6N2FKxe, M6N2FKye, M6N2FKze" 		 - Static (elastic) forces (GBSupp1 flex beam)
+"M6N1MKxe, M6N1MKye, M6N1MKze, M6N2MKxe, M6N2MKye, M6N2MKze" 		 - Static (elastic) moments (GBSupp1 flex beam)
+"M7N1TDxss, M7N1TDyss, M7N1TDzss, M7N1RDxe, M7N1RDye, M7N1RDze" 		 - GBSupp2 flex beam motion
+"M7N2TDxss, M7N2TDyss, M7N2TDzss, M7N2RDxe, M7N2RDye, M7N2RDze" 		 - GBSupp2 flex beam motion
+"M7N1FMxe, M7N1FMye, M7N1FMze, M7N2FMxe, M7N2FMye, M7N2FMze" 		 - Dynamic (inertia) forces (GBSupp2 flex beam)
+"M7N1MMxe, M7N1MMye, M7N1MMze, M7N2MMxe, M7N2MMye, M7N2MMze" 		 - Dynamic (inertia) moments (GBSupp2 flex beam)
+"M7N1FKxe, M7N1FKye, M7N1FKze, M7N2FKxe, M7N2FKye, M7N2FKze" 		 - Static (elastic) forces (GBSupp2 flex beam)
+"M7N1MKxe, M7N1MKye, M7N1MKze, M7N2MKxe, M7N2MKye, M7N2MKze" 		 - Static (elastic) moments (GBSupp2 flex beam)
+"M8N1TDxss, M8N1TDyss, M8N1TDzss, M8N1RDxe, M8N1RDye, M8N1RDze" 		 - Shaft pt2 flex beam motion
+"M8N2TDxss, M8N2TDyss, M8N2TDzss, M8N2RDxe, M8N2RDye, M8N2RDze" 		 - Shaft pt2 flex beam motion
+"M9N1TDxss, M9N1TDyss, M9N1TDzss, M9N1RDxe, M9N1RDye, M9N1RDze" 		 - Shaft pt3 flex beam motion
+"M9N2TDxss, M9N2TDyss, M9N2TDzss, M9N2RDxe, M9N2RDye, M9N2RDze" 		 - Shaft pt3 flex beam motion
+"ReactFXss, ReactFYss, ReactFZss, ReactMXss, ReactMYss, ReactMZss" 		 - - Base moments and forces for bottom-fixed/landbased.
+"IntfFXss, IntfFYss, IntfFZss, IntfMXss, IntfMYss, IntfMZss" 		 - - Interface joint moments and forces.
+"IntfTDXss, IntfTDYss, IntfTDZss, IntfRDXss, IntfRDYss , IntfRDZss" 		 - - Displacements and rotations of the TP reference point in global coordinate sys.
+"IntfTAXss, IntfTAYss, IntfTAZss, IntfRAXss, IntfRAYss, IntfRAZss" 		 - - Translational and rotational accelerations of the TP reference point (platform reference point) location in SS coordinate system
+END
+---------------------------------------------------------------------------------------

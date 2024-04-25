@@ -1,0 +1,11 @@
+!---------------- K and M matrices -------------------!
+! Equivalent Stiffness Constants: Kxx, Kyy, Kzz, Kxtx, Kxty..Kztx,Kzty,Kztz  in any order; max 21 elements. 
+! Roger comments: Interpret the 't' as rotation and the matrix is assumed to be symmetric. It's only necessary to define the upper half part of the matrix. 
+6.336198E9				Kxx
+6.336198E9			    Kyy
+1.119691E10				Kzz
+8.111942E11			    Ktxtx
+8.111942E11				Ktyty
+2.552673E11				Ktztz
+-5.015421E10			Kxty
+5.015421E10			    Kytx
