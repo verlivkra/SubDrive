@@ -76,7 +76,6 @@ class Model:
         
         # Floating, monopile or landbased platform
         self.platformType = platform_type
-        print(self.platformType)
         self.interfaceLocation = interface_location
 
         #----------- File handling -------------------
@@ -143,8 +142,7 @@ class Model:
         self.sd['SDdeltaT'] = self.inputs.DT_sd  
         
         if hasattr(self, 'hd'):
-            self.hd['RdtnDT'] = self.inputs.DT_fst
-            #self.hd['WaveTMax'] = self.inputs.TMax
+            self.hd['RdtnDT'] = '"DEFAULT"'
 
     def towerBaseJoint(self):
         """Joint connecting tower and mooring lines. At tower base."""
@@ -163,9 +161,11 @@ class Model:
         assert tools.unique_val_list(np.transpose(self.ConcentratedMasses)[0])
         #TODO: Add check to see that all nodes are connected to a member
 
-    def floatingPlatform(self):
+    def floatingPlatform(self, addPtfmRefZ = False):
         """
-        Add rigid elements between fairleads and tower in new Subdyn file, based on original ElastoDyn file
+        Add rigid elements between fairleads and tower in new Subdyn file, based on original ElastoDyn file. Typically to verify motions
+
+        
         """
         fairLeadJts = []
         #Add fairlead joints
@@ -174,7 +174,7 @@ class Model:
                 self.JointID += 1
                 self.Joints.append([self.JointID, float(con[2]), float(con[3]), float(con[4]), 1, 0.0, 0.0, 0.0, 0.0]) #ID, XSS, YSS, ZSS, JointType (1 = cantilever), JointDirX  JointDirY JointDirZ JointStiff            
                 fairLeadJts.append(self.JointID) #TODO add these to self? #Fairlead joints
-                
+        
         #Node for platform mass and inertia. Found from "original" ED-files
         self.JointID += 1
         self.Joints.append([self.JointID, self.baseF.Ed['PtfmCMxt'], self.baseF.Ed['PtfmCMyt'], self.baseF.Ed['PtfmCMzt'], 1, 0.0, 0.0, 0.0, 0.0]) #ID, XSS, YSS, ZSS, JointType (1 = cantilever), JointDirX  JointDirY JointDirZ JointStiff            
@@ -182,8 +182,16 @@ class Model:
         self.ConcentratedMasses.append([self.JointID, self.baseF.Ed['PtfmMass'], self.baseF.Ed['PtfmRIner'], self.baseF.Ed['PtfmPIner'], 
                                         self.baseF.Ed['PtfmYIner'], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.ptfmCMJtID = self.JointID 
-        self.towerBaseJoint() #Establish position of tower base joint and add joint
-        
+
+        #Add a joint corresponding to the platform reference point in the traditional model, rigidly connected to the flexible tower base joint. 
+        PtfmRefZ = self.baseF.Ed['PtfmRefzt']
+        self.JointID += 1
+        self.Joints.append([self.JointID, 0, 0, PtfmRefZ, 1, 0.0, 0.0, 0.0, 0.0]) 
+        self.ptfmRefZJtID = self.JointID
+
+        #Establish position of tower base joint and add joint
+        self.towerBaseJoint() 
+
         #Connect fairleads to tower base
         for fJtID in fairLeadJts:
             self.MemberID +=1 
@@ -192,6 +200,10 @@ class Model:
         #Connect ptfm center of mass to tower base
         self.MemberID +=1 
         self.Members.append([self.MemberID, self.ptfmCMJtID, self.twrBsJntID, self.RPropSetIDMassless, self.RPropSetIDMassless, 3, -1]) #MType = 3: Rigid link
+
+        #Connect ptfm refz to tower base
+        self.MemberID +=1 
+        self.Members.append([self.MemberID, self.ptfmRefZJtID, self.twrBsJntID, self.RPropSetIDMassless, self.RPropSetIDMassless, 3, -1]) #MType = 3: Rigid link
 
     def monoPile(self):
         """
@@ -679,48 +691,48 @@ class Model:
         Twr2ShftZ   = self.baseF.Ed['Twr2Shft']
 
         # TODO Maybe some of these should be assinged to self? What self? inputs? or main?
-        H_bedplate = self.inputs.HhttZ - (self.inputs.L_drive + HubRad)*tools.sind(ShftTilt) # H_bedplate = 4.875 # TODO ADd to self somehow?
-        L_bedplate = (H_bedplate - Twr2ShftZ)/tools.tand(ShftTilt) # L_bedplate = 5 m, X-direction not axial
+        self.H_bedplate = self.inputs.HhttZ - (self.inputs.L_drive + HubRad)*tools.sind(ShftTilt) # H_bedplate = 4.875 # TODO ADd to self somehow?
+        self.L_bedplate = (self.H_bedplate - Twr2ShftZ)/tools.tand(ShftTilt) # L_bedplate = 5 m, X-direction not axial
 
         # https://wisdem.readthedocs.io/en/master/wisdem/drivetrainse/components.html#bedplate
         # Calculate bedplate points (midline)
         # theta = 0: Nose theta = 90: tower - following right-hand rule - rotation around y positive from nose to tower
         
-        xc_mid      = L_bedplate*tools.cosd(45) # Ellipse centerline
-        xout_mid    = (L_bedplate + self.inputs.Dtt/2)*tools.cosd(45) # Outer curve. Dtt = Tower top diameter 
-        xin_mid     = (L_bedplate - self.inputs.Dtt/2)*tools.cosd(45) # Inner curve.
-        zc_mid      = H_bedplate*tools.sind(45)
-        zout_mid    = (H_bedplate + self.inputs.NoseOD[0]/2)*tools.sind(45)
-        zin_mid     = (H_bedplate - self.inputs.NoseOD[0]/2)*tools.sind(45)
+        xc_mid      = self.L_bedplate*tools.cosd(45) # Ellipse centerline
+        xout_mid    = (self.L_bedplate + self.inputs.Dtt/2)*tools.cosd(45) # Outer curve. Dtt = Tower top diameter 
+        xin_mid     = (self.L_bedplate - self.inputs.Dtt/2)*tools.cosd(45) # Inner curve.
+        zc_mid      = self.H_bedplate*tools.sind(45)
+        zout_mid    = (self.H_bedplate + self.inputs.NoseOD[0]/2)*tools.sind(45)
+        zin_mid     = (self.H_bedplate - self.inputs.NoseOD[0]/2)*tools.sind(45)
 
         BdpltOD_mid = np.sqrt((xout_mid - xin_mid)**2 + (zout_mid - zin_mid)**2)
 
         BedpltJoints = {
-            'Stator_Attachment':    {'xyz': [-(L_bedplate + self.inputs.Lgsn*tools.cosd(ShftTilt)), 
+            'Bedplt_Mid': {'xyz': [-xc_mid, 
                                 0, 
-                                TowerHt + H_bedplate + self.inputs.Lgsn*tools.sind(ShftTilt)]}, 
+                                TowerHt + zc_mid]}, 
+            'Nose_GenSide': {'xyz': [-self.L_bedplate, 
+                            0, 
+                            TowerHt + self.H_bedplate]}, 
+            'Stator_Attachment':    {'xyz': [-(self.L_bedplate + self.inputs.Lgsn*tools.cosd(ShftTilt)), 
+                                0, 
+                                TowerHt + self.H_bedplate + self.inputs.Lgsn*tools.sind(ShftTilt)]}, 
             'Stator_Mass':           {'xyz': [self.inputs.Tow2GenStatX, 
                                               self.inputs.Tow2GenStatY,  
                                               TowerHt + self.inputs.Tow2GenStatZ], 
                                 'Mass': {'JMass': self.inputs.GenStatMass, 
                                         'JMXX': self.inputs.GenStatMXX, 'JMYY': self.inputs.GenStatMYY, 'JMZZ': self.inputs.GenStatMZZ, 
                                         'JMXY': 0, 'JMXZ': 0, 'JMYZ': 0, 'MCGX': 0, 'MCGY': 0, 'MCGZ': 0}},
-            'MB1': {'xyz': [-(L_bedplate + (self.inputs.L2n + self.inputs.L12)*tools.cosd(ShftTilt)), 
+            'MB2': {'xyz': [-(self.L_bedplate + self.inputs.L2n*tools.cosd(ShftTilt)), 
                             0, 
-                            TowerHt + H_bedplate + (self.inputs.L2n + self.inputs.L12)*tools.sind(ShftTilt)]}, 
-            'MB2': {'xyz': [-(L_bedplate + self.inputs.L2n*tools.cosd(ShftTilt)), 
+                            TowerHt + self.H_bedplate + self.inputs.L2n*tools.sind(ShftTilt)]}, 
+            'MB1': {'xyz': [-(self.L_bedplate + (self.inputs.L2n + self.inputs.L12)*tools.cosd(ShftTilt)), 
                             0, 
-                            TowerHt + H_bedplate + self.inputs.L2n*tools.sind(ShftTilt)]}, 
-            'Nose_GenSide': {'xyz': [-L_bedplate, 
-                            0, 
-                            TowerHt + H_bedplate]}, 
+                            TowerHt + self.H_bedplate + (self.inputs.L2n + self.inputs.L12)*tools.sind(ShftTilt)]}, 
             # 'Nose_RotSide': {'xyz': [-(L_bedplate + self.inputs.Lnose*tools.cosd(ShftTilt)),  # NB! MB1 = Nose_RotSide
             #                 0, 
             #                 TowerHt + H_bedplate + self.inputs.Lnose*tools.sind(ShftTilt)]}, 
 
-            'Bedplt_Mid': {'xyz': [-xc_mid, 
-                                0, 
-                                TowerHt + zc_mid]}, 
                     }
 
         # Material Bedplate bottom
@@ -747,7 +759,6 @@ class Model:
         print("Warning! Assuming same material properties and geometry along drivetrain nose!")
 
         # Member between tower and bedplate mid
-        print("Bedplate bottom to bedplate mid")
         jnt = BedpltJoints['Bedplt_Mid']
         jntCrds = jnt['xyz']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
@@ -758,9 +769,11 @@ class Model:
         self.MemberID+=1
         self.Members.append([self.MemberID, self.twrTopJntID, self.JointID, BdpltBot_PropSetID, BdpltMid_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
-        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        # NB! Using input mass to get correct nacelle mass
+        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, self.inputs.BdpltMassTow2Mid, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        print("Member between tower and bedplate mid")
+        print(self.MemberID, self.inputs.BdpltMassTow2Mid)
 
-        print("Bedplate mid to nose gen side")
         # Member between bedplate mid and nose generator side
         jnt = BedpltJoints['Nose_GenSide']
         jntCrds = jnt['xyz']
@@ -772,13 +785,17 @@ class Model:
         self.MemberID+=1
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, BdpltMid_PropSetID, BdpltTop_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
-        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        # NB! Using input mass to get correct nacelle mass
+        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, self.inputs.BdpltMassMid2Nose, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        print("Member between bedplate mid and nose generator side")
+        print(self.MemberID, self.inputs.BdpltMassMid2Nose)
 
         # Member between nose generator side and stator attachment
-        print("Bedplate nose gen side to stator attachment")
         jnt = BedpltJoints['Stator_Attachment']
         jntCrds = jnt['xyz']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
+        print("Generator stator attachment")
+        print(jntX, jntY, jntZ)
 
         self.JointID+=1
         self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
@@ -788,9 +805,10 @@ class Model:
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, NoseGenSide_PropSetID, NoseGenSide_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        print("Member between nose generator side and stator attachment")
+        print(self.MemberID, pipe.mass)
 
         # Member between stator attachment to MB2
-        print("Bedplate stator attachment and MB2")
         jnt = BedpltJoints['MB2']
         jntCrds = jnt['xyz']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
@@ -803,9 +821,10 @@ class Model:
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, NoseGenSide_PropSetID, NoseGenSide_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        print("Member between stator attachment to MB2")
+        print(self.MemberID, pipe.mass)
 
         # Member between MB2 and MB1
-        print("Bedplate MB2 and MB1")
         jnt = BedpltJoints['MB1']
         jntCrds = jnt['xyz']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
@@ -818,13 +837,16 @@ class Model:
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, NoseGenSide_PropSetID, NoseRotSide_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+        print("Member between MB2 and MB1")
+        print(self.MemberID, pipe.mass)
 
         # Add stator mass
         jnt = BedpltJoints['Stator_Mass']
         jntCrds = jnt['xyz']
         mass = jnt['Mass']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
-
+        print("Generator stator mass com")
+        print(jntX, jntY, jntZ)
         self.JointID+=1
         self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
         
@@ -836,33 +858,17 @@ class Model:
                                                         mass['MCGX'], mass['MCGY'], mass['MCGZ']])
         self.drTrMassProps.append([jntX, jntY, jntZ, mass['JMass'], mass['JMXX'], mass['JMYY'], mass['JMZZ']]) 
 
-        # # TODO: Legge til underveis isteden?    
-        # Sum up bedplate mass        
-        # bdpltLength = BedpltLtot
-        # bdpltXArea  = (np.pi/4)*(self.inputs.BedpltOD**2-(self.inputs.BedpltOD-2*self.inputs.BedpltT)**2)
-        # bdpltMass = self.inputs.BedpltRho*bdpltLength*bdpltXArea
-        # # Uniform mass, assume similar beamprops along the whole shaft
-        # bdpltCMx = Gen_x-(Gen_x-MB1_x)/2
-        # bdpltCMy = Gen_y-(Gen_y-MB1_y)/2
-        # bdpltCMz = Gen_z-(Gen_z-MB1_z)/2
-        
-        # R_i = (self.inputs.BedpltOD-2*self.inputs.BedpltT)/2
-        # R_o = self.inputs.BedpltOD/2
-        
-        # #Inertia about bedplate COG in global coordinate system
-        # bdpltIxx = 1/2*bdpltMass*(R_i**2+R_o**2)
-        # bdpltIyy = 1/12*bdpltMass*(3*(R_i**2+R_o**2) + bdpltLength**2)  
-        # bdpltIzz = 1/12*bdpltMass*(3*(R_i**2+R_o**2) + bdpltLength**2)  
-        
-        # self.drTrMassProps.append([bdpltCMx, bdpltCMy, bdpltCMz, bdpltMass, bdpltIxx, bdpltIyy, bdpltIzz]) 
 
-    
-
-    def buildShaft(self):
+    def buildShaft(self, shaft_type):
         """
         Build shaft in SubDyn
         """
+        if shaft_type == 'DTU10MW_mediumspeed':
+            self.shaft_med_speed()
+        elif shaft_type == 'wisdem_directdrive':
+            self.shaft_DD_wisdem()
 
+    def shaft_med_speed(self): #Only tested for DTU 10 MW
         ShftTilt = self.baseF.Ed['ShftTilt']
         Tow2MB1X = self.inputs.Tow2MB1X
         Tow2MB2X = self.inputs.Tow2MB2X
@@ -951,9 +957,9 @@ class Model:
         shftIzzLoc = 1/12*shftMass*(3*(R_i**2+R_o**2) + shftLength**2)  #Local coordinate system
         
         #--------------Transforming shaft mass moment of inertia to global coordinate system. This has minimal effect.         
-        T = np.array([[     cosd(self.ed['ShftTilt']),      0,          cosd(90+self.ed['ShftTilt'])],
+        T = np.array([[     tools.cosd(self.ed['ShftTilt']),      0,          tools.cosd(90+self.ed['ShftTilt'])],
                       [     0,                              1,          0                           ], 
-                      [     cosd(90-self.ed['ShftTilt']),   0,          cosd(self.ed['ShftTilt'])   ]])
+                      [     tools.cosd(90-self.ed['ShftTilt']),   0,          tools.cosd(self.ed['ShftTilt'])   ]])
         
         Iloc = np.array([[  shftIxxLoc,                     0,          0                           ],
                       [     0,                              shftIyyLoc, 0                           ],
@@ -971,7 +977,126 @@ class Model:
         
         return
     
-    def buildMainBearing(self, MB1or2 = 'MB1'):
+    def shaft_DD_wisdem(self):
+        ShftTilt    = -self.baseF.Ed['ShftTilt']
+        TowerHt     = self.baseF.Ed['TowerHt']
+
+        ShftJoints = {
+            'MB2': {'xyz': [-(self.L_bedplate + self.inputs.L2n*tools.cosd(ShftTilt)), 
+                            0, 
+                            TowerHt + self.H_bedplate + self.inputs.L2n*tools.sind(ShftTilt)]}, 
+            
+            'MB1': {'xyz': [-(self.L_bedplate + (self.inputs.L2n + self.inputs.L12)*tools.cosd(ShftTilt)), 
+                            0, 
+                            TowerHt + self.H_bedplate + (self.inputs.L2n + self.inputs.L12)*tools.sind(ShftTilt)]}, 
+            'GenRotor_Attachment':    {'xyz': [-(self.L_bedplate + (self.inputs.L2n + self.inputs.Llss - self.inputs.Lgrs)*tools.cosd(ShftTilt)), 
+                            0, 
+                            TowerHt + self.H_bedplate + (self.inputs.L2n + self.inputs.Llss - self.inputs.Lgrs)*tools.sind(ShftTilt)]}, 
+            
+            # This is a rotating part - Ixx is included in ED as GenIner
+            'GenRotor_Mass':    {'xyz': [   self.inputs.Tow2GenRotX, 
+                                            self.inputs.Tow2GenRotY,  
+                                            TowerHt + self.inputs.Tow2GenRotZ], 
+                                'Mass': {'JMass': self.inputs.GenRotMass, 
+                                        'JMXX': self.inputs.GenRotMXX, 'JMYY': self.inputs.GenRotMYY, 'JMZZ': self.inputs.GenRotMZZ, 
+                                        'JMXY': 0, 'JMXZ': 0, 'JMYZ': 0, 'MCGX': 0, 'MCGY': 0, 'MCGZ': 0}},
+            'Shaft_RotSide':    {'xyz': [-(self.L_bedplate + (self.inputs.L2n + self.inputs.Llss)*tools.cosd(ShftTilt)), 
+                                0, 
+                                TowerHt + self.H_bedplate + (self.inputs.L2n + self.inputs.Llss)*tools.sind(ShftTilt)]}, 
+            }
+
+        print("ShftJoints")
+        print(ShftJoints)
+        # Material 
+        self.BPropSetID+=1
+        self.BeamProp.append([self.BPropSetID, self.inputs.ShftE, self.inputs.ShftG, self.inputs.ShftRho, self.inputs.ShftOD[0], self.inputs.ShftT[0]]) #TODO Check indexing!
+        print("WARNING! Assuming uniform diameter and thickness along shaft. ")
+        Shaft_PropSetID = self.BPropSetID
+
+        # Shaft between MB2 and MB1
+        jnt = ShftJoints['MB2']
+        jntCrds = jnt['xyz']
+        jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
+
+        self.JointID+=1
+        self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
+        self.MB2ShftJtID = self.JointID
+
+        jnt = ShftJoints['MB1']
+        jntCrds = jnt['xyz']
+        jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
+
+        self.JointID+=1
+        self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
+        self.MB1ShftJtID = self.JointID
+        
+        
+        self.MemberID+=1
+        self.Members.append([self.MemberID, self.JointID-1, self.JointID, Shaft_PropSetID, Shaft_PropSetID , 1, -1]) #MType = 1: Beam
+        pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
+        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+
+        # MB1 to generator rotor attachment
+        jnt = ShftJoints['GenRotor_Attachment']
+        jntCrds = jnt['xyz']
+        jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
+        print("Generator rotor attachment")
+        print(jntX, jntY, jntZ)
+
+        self.JointID+=1
+        self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
+        self.GenRotorAttachJtID = self.JointID
+
+        self.MemberID+=1
+        self.Members.append([self.MemberID, self.JointID-1, self.JointID, Shaft_PropSetID, Shaft_PropSetID , 1, -1]) #MType = 1: Beam
+        pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
+        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+
+        # Generator rotor attachment to shaft rotor side
+        jnt = ShftJoints['Shaft_RotSide']
+        jntCrds = jnt['xyz']
+        jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
+        self.ShftTipCoord = [jntX, jntY, jntZ]
+
+        self.JointID+=1
+        self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
+        self.ShftRotSideJtID = self.JointID
+        if self.interfaceLocation == 'shaft':
+            self.InterfaceJoints.append([self.ShftRotSideJtID, 1, 1, 1, 1, 1, 1])  #All fixities must be set to 1 in the current version of SubDyn
+        
+        self.MemberID+=1
+        self.ShftTipRotSideMemID = self.MemberID
+        self.Members.append([self.MemberID, self.JointID-1, self.JointID, Shaft_PropSetID, Shaft_PropSetID , 1, -1]) #MType = 1: Beam
+        pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
+        self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
+
+        # Add generator rotor mass
+        jnt = ShftJoints['GenRotor_Mass']
+        jntCrds = jnt['xyz']
+        mass = jnt['Mass']
+        jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
+        print("Generator rotor mass COM")
+        print(jntX, jntY, jntZ)
+        self.JointID+=1
+        self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
+        
+        self.MemberID+=1
+        self.Members.append([self.MemberID, self.GenRotorAttachJtID, self.JointID, self.RPropSetID, self.RPropSetID , 3, -1]) #MType = 3: Rigid link
+
+        self.ConcentratedMasses.append([self.JointID, mass['JMass'], mass['JMXX'], mass['JMYY'], mass['JMZZ'], 
+                                                        mass['JMXY'], mass['JMXZ'], mass['JMYZ'], 
+                                                        mass['MCGX'], mass['MCGY'], mass['MCGZ']])
+        self.drTrMassProps.append([jntX, jntY, jntZ, mass['JMass'], mass['JMXX'], mass['JMYY'], mass['JMZZ']]) 
+
+        return
+    
+    def buildMainBearing(self, MB1or2 = 'MB1', mb_type = 'DTU10MW_mediumspeed'):
+        if mb_type == 'DTU10MW_mediumspeed':
+            self.MB_med_speed(MB1or2)
+        elif mb_type == 'wisdem_directdrive':
+            self.MB_DD_wisdem(MB1or2)
+
+    def MB_med_speed(self, MB1or2):
         if MB1or2 == 'MB1':
             MBShftJoint = self.jointByID(self.MB1ShftJtID)
             MBShftJtID = self.MB1ShftJtID
@@ -1021,6 +1146,44 @@ class Model:
         #Rigid link to bedplate
         self.MemberID+=1
         self.Members.append([self.MemberID, self.JointID, MBBdpltJtID, self.RPropSetIDMassless, self.RPropSetIDMassless, 3, -1]) #MType = 3: Rigid link
+
+    def MB_DD_wisdem(self, MB1or2):
+        if MB1or2 == 'MB1':
+            MBShftJtID = self.MB1ShftJtID
+            MBBdpltJtID = self.MB1BedpltJtID
+            MBSpring = self.inputs.MB1Spring
+        elif MB1or2 == 'MB2':
+            MBShftJtID = self.MB2ShftJtID
+            MBBdpltJtID = self.MB2BedpltJtID
+            MBSpring = self.inputs.MB2Spring
+        else: 
+            print('Error: No familiar main bearing names!')
+        
+        # Spring
+        self.SPropSetID += 1
+        self.SpringProp.append([self.SPropSetID, 
+                                MBSpring['k11'], 0, 0, 0, 0, 0, #k12, k13, k14, k15, k16
+                                MBSpring['k22'], 0, 0, 0, 0, #k23, k24, k25, k26
+                                MBSpring['k33'], 0, 0, 0, #k34, k35, k36
+                                MBSpring['k44'], 0, 0, #k45, k46
+                                MBSpring['k55'], 0, #k56
+                                MBSpring['k66']])
+
+        if self.MBCosmID != False: # Already exists
+            pass 
+        else:
+            self.CosmID += 1
+            cosms_temp = [self.CosmID] + self.inputs.MB_cosm
+            self.Cosms.append(cosms_temp)
+            self.MBCosmID = self.CosmID
+        
+        self.MemberID+=1
+        self.Members.append([self.MemberID, MBShftJtID, MBBdpltJtID, self.SPropSetID, self.SPropSetID, 5, self.MBCosmID]) #MType = 5: Spring w/o length
+        if MB1or2 == 'MB1':
+            self.MB1MemID = self.MemberID
+        elif MB1or2 == 'MB2':
+            self.MB2MemID = self.MemberID
+
 
     def buildGBox(self):
         """Build gearbox supports and gearbox concentrated mass"""
@@ -1103,7 +1266,6 @@ class Model:
         #---Calculate remaining tower top mass and inertia-----
         #This mass and inertia is not included in subDyn drivetrain
         #Will be added to tower top at correct CM
-        print(self.drTrMassProps)
         drTrMassProps = np.array(self.drTrMassProps)
         
         if len(drTrMassProps) == 0:
@@ -1112,6 +1274,8 @@ class Model:
         else: 
             drTrMass = np.sum(drTrMassProps[:,3])
         nacPtMassM = self.baseF.Ed['NacMass']-drTrMass #remaining mass that needs to be allocated
+        print("nacPtMassM")
+        print(nacPtMassM)
         #Calculate new CM
         CM_orig = [self.baseF.Ed['NacCMxn'], self.baseF.Ed['NacCMyn'], 
                     self.baseF.Ed['NacCMzn']+self.baseF.Ed['TowerHt']] #NacCMzn is measured from tower top
@@ -1160,8 +1324,6 @@ class Model:
         self.ConcentratedMasses.append([self.JointID, mass, Jxx, Jyy, Jzz, 0, 0, 0, 0, 0, 0]) 
 
         # Add nacelle yaw inertia (about tower vertical axis/yaw axis) #TODO CHeck if this is correct!
-
-        
         # Not for DTU 10 MW drivetrain
         # For IEA 15 MW, it should be calculated, based on remaining inertia after drivetrain is modeled
         if add_nacelle_yaw_inertia:
@@ -1187,6 +1349,10 @@ class Model:
         else: 
             yawBrMass = 0
         self.ConcentratedMasses.append([self.twrTopJntID, yawBrMass, 0, 0, self.baseF.Ed['NacYIner']-JzzSum, 0, 0, 0, 0, 0, 0]) 
+
+        self.ed['NacMass'] = 0 
+        self.ed['NacYIner'] = 0 
+        self.ed['YawBrMass'] = 0 
 
     def nacMassInerMultiple(self, CMx1 = 0, CMy1 = 0, CMz1 = 118.41925, mass1 = 206798.6796, # USED FOR DEBUGGING ONLY (a while ago)
                         Jxx1 = 183.6198258, Jyy1 = 1094869.005, Jzz1 = 5075985.327, 
@@ -1286,9 +1452,9 @@ class Model:
         #Written to SubDyn inpute file in "write"-function 
         
         #Shift x-coordinates in ElastoDyn 
-        self.ed['TowerHt'] = np.round(edTmpl['TowerHt'] - x*tand(edTmpl['ShftTilt']),2)
-        self.ed['TowerBsHt'] = np.round(edTmpl['TowerBsHt'] - x*tand(edTmpl['ShftTilt']),2)
-        self.ed['PtfmRefzt'] = np.round(edTmpl['PtfmRefzt'] - x*tand(edTmpl['ShftTilt']),2)
+        self.ed['TowerHt'] = np.round(edTmpl['TowerHt'] - x*tools.tand(edTmpl['ShftTilt']),2)
+        self.ed['TowerBsHt'] = np.round(edTmpl['TowerBsHt'] - x*tools.tand(edTmpl['ShftTilt']),2)
+        self.ed['PtfmRefzt'] = np.round(edTmpl['PtfmRefzt'] - x*tools.tand(edTmpl['ShftTilt']),2)
         self.ed['OverHang'] = np.round(edTmpl['OverHang'] + x, 2)
         self.ed['ShftGagL'] = np.round(edTmpl['ShftGagL'] + x, 2)
         self.ed['NacCMxn'] = np.round(edTmpl['NacCMxn'] + x, 2)
@@ -1314,8 +1480,6 @@ class Model:
             self.hd['---------------------- OUTPUT'] = ['', '"Wave1Elev"               - Wave elevation at the platform reference point (0,  0)', 
                                                         '"B1Surge, B1Sway, B1Heave, B1Roll, B1Pitch, B1Yaw" - Platform motion']
             
-    
-        #TODO: Rather just output all member nodes!
         #Add tower top and tower base to member outputs
         self.memOutDict = {} # keep track of member outputs for post-processing -> written to JSON-file
         
@@ -1329,10 +1493,30 @@ class Model:
             self.memOutDict['PileBas'] = {}
             self.memOutDict['PileBas']['memCount'] = [memOut_count]
             self.memOutDict['PileBas']['ID'] = self.pileBsMemID
+        elif self.platformType == 'floating':
+            #--------Platform COG--------#
+            self.sd['MemberOuts'].append(np.array([self.ptfmCMJtID, 2, 1, 2])) #Pile Base
+            memOut_count += 1
+            self.memOutDict['PlatformCOG'] = {}
+            self.memOutDict['PlatformCOG']['memCount'] = [memOut_count]
+            self.memOutDict['PlatformCOG']['ID'] = self.ptfmCMJtID
+            #--------Platform reference point------------#
+            self.sd['MemberOuts'].append(np.array([self.ptfmRefZJtID, 2, 1, 2])) #Pile Base
+            memOut_count += 1
+            self.memOutDict['PlatformRefz'] = {}
+            self.memOutDict['PlatformRefz']['memCount'] = [memOut_count]
+            self.memOutDict['PlatformRefz']['ID'] = self.ptfmCMJtID
+            #--------Tower Base Member--------#
+            self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, 2])) #Tower base member with two nodes
+            memOut_count += 1
+            self.memOutDict['TwrBas'] = {}
+            self.memOutDict['TwrBas']['memCount'] = [memOut_count]
+            self.memOutDict['TwrBas']['ID'] = self.twrBasMemID
+
         else:
             #--------Tower Base Member--------#
             self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, 2])) #Tower base member with two nodes
-            memOut_count = 1
+            memOut_count += 1
             self.memOutDict['TwrBas'] = {}
             self.memOutDict['TwrBas']['memCount'] = [memOut_count]
             self.memOutDict['TwrBas']['ID'] = self.twrBasMemID
@@ -1356,7 +1540,19 @@ class Model:
             self.memOutDict['Shaft']['memCount'] = [memOut_count] #Add shaft MB1 and MB2 later on
             self.memOutDict['Shaft']['ID'] = []   #We only care about the MN - outputs, not MJ, for this particular part
         except:
-            print("WARNING when printing member outputs: 'SubDyn' object has no attribute 'MB1ShftMemID'")
+            try:
+                #--------Shaft Tip------------------#
+                self.sd['MemberOuts'].append(np.array([self.ShftTipRotSideMemID, 2, 1, 2])) #Shaft tip to main bearing connection along shaft
+                memOut_count += 1
+                self.memOutDict['ShftTip'] = {}
+                self.memOutDict['ShftTip']['memCount'] = [memOut_count]
+                self.memOutDict['ShftTip']['ID'] = self.ShftTipRotSideMemID
+                
+                # self.memOutDict['Shaft'] = {}
+                # self.memOutDict['Shaft']['memCount'] = [memOut_count] #Add shaft MB1 and MB2 later on
+                # self.memOutDict['Shaft']['ID'] = []   #We only care about the MN - outputs, not MJ, for this particular part
+            except:
+                print("WARNING when printing member outputs: 'SubDyn' object has no attribute 'ShftTipRotSideMemID' or 'MB1ShftMemID'")
 
         try:
             #--------MB1------------------#
@@ -1411,8 +1607,8 @@ class Model:
 
         self.sd['NMOutputs'] = len(self.sd['MemberOuts']) 
         #TODO: I think this is updated
-        if self.sd['NMOutputs']>9:
-            print('WARNING: Only 9 lines are allowd in the SDOutlist')
+        # if self.sd['NMOutputs']>9:
+        #     print('WARNING: Only 9 lines are allowd in the SDOutlist')
         
         #Update SDOutlist
         for i, dictionary in enumerate(self.sd.data):
@@ -1423,56 +1619,95 @@ class Model:
         
         del self.sd.data[sdOutList_istart:sdOutList_iend] 
         # TODO Check that output is not hard-coded
-        sdoutlist = [{'value': '"M1N1TDxss, M1N1TDyss, M1N1TDzss, M2N2TDxss, M2N2TDyss, M2N2TDzss" \t\t - Tower base and tower top displacements', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M1N1RDxe, M1N1RDye, M1N1RDze, M2N2RDxe, M2N2RDye, M2N2RDze" \t\t - Tower base and tower top rotations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M2N2TAxe, M2N2TAye, M2N2TAze, M2N2RAxe, M2N2RAye, M2N2RAze" \t\t - Tower base and tower top accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M1N1FKxe, M1N1FKye, M1N1FKze, M2N2FKxe, M2N2FKye, M2N2FKze" \t\t - Static (elastic) forces (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M1N1MKxe, M1N1MKye, M1N1MKze, M2N2MKxe, M2N2MKye, M2N2MKze" \t\t - Static (elastic) moments (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M1N1FMxe, M1N1FMye, M1N1FMze, M2N2FMxe, M2N2FMye, M2N2FMze" \t\t - Dynamic (inertia) forces (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M1N1MMxe, M1N1MMye, M1N1MMze, M2N2MMxe, M2N2MMye, M2N2MMze" \t\t - Dynamic (inertia) moments (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M3N1TDxss, M3N1TDyss, M3N1TDzss, M3N1RDxe, M3N1RDye, M3N1RDze" \t\t - Shaft tip motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M3N2TDxss, M3N2TDyss, M3N2TDzss, M3N2RDxe, M3N2RDye, M3N2RDze" \t\t - Shaft tip motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M3N1TAxe, M3N1TAye, M3N1TAze, M3N1RAxe, M3N1RAye, M3N1RAze" \t\t - Shaft accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M3N2TAxe, M3N2TAye, M3N2TAze, M3N2RAxe, M3N2RAye, M3N2RAze" \t\t - Shaft accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M3N1FMxe, M3N1FMye, M3N1FMze, M3N2FMxe, M3N2FMye, M3N2FMze" \t\t - Dynamic (inertia) forces (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M3N1MMxe, M3N1MMye, M3N1MMze, M3N2MMxe, M3N2MMye, M3N2MMze" \t\t - Dynamic (inertia) moments (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M3N1FKxe, M3N1FKye, M3N1FKze, M3N2FKxe, M3N2FKye, M3N2FKze" \t\t - Static (elastic) forces (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M3N1MKxe, M3N1MKye, M3N1MKze, M3N2MKxe, M3N2MKye, M3N2MKze" \t\t - Static (elastic) moments (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M4N1TDxss, M4N1TDyss, M4N1TDzss, M4N1RDxe, M4N1RDye, M4N1RDze" \t\t - MB1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M4N2TDxss, M4N2TDyss, M4N2TDzss, M4N2RDxe, M4N2RDye, M4N2RDze" \t\t - MB1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M4N1TAxe, M4N1TAye, M4N1TAze, M4N1RAxe, M4N1RAye, M4N1RAze" \t\t - MB1 accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M4N2TAxe, M4N2TAye, M4N2TAze, M4N2RAxe, M4N2RAye, M4N2RAze" \t\t - MB1 accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M4N1FMxe, M4N1FMye, M4N1FMze, M4N2FMxe, M4N2FMye, M4N2FMze" \t\t - Dynamic (inertia) forces (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M4N1MMxe, M4N1MMye, M4N1MMze, M4N2MMxe, M4N2MMye, M4N2MMze" \t\t - Dynamic (inertia) moments (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M4N1FKxe, M4N1FKye, M4N1FKze, M4N2FKxe, M4N2FKye, M4N2FKze" \t\t - Static (elastic) forces (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M4N1MKxe, M4N1MKye, M4N1MKze, M4N2MKxe, M4N2MKye, M4N2MKze" \t\t - Static (elastic) moments (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M5N1TDxss, M5N1TDyss, M5N1TDzss, M5N1RDxe, M5N1RDye, M5N1RDze" \t\t - MB2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M5N2TDxss, M5N2TDyss, M5N2TDzss, M5N2RDxe, M5N2RDye, M5N2RDze" \t\t - MB2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M5N1FMxe, M5N1FMye, M5N1FMze, M5N2FMxe, M5N2FMye, M5N2FMze" \t\t - Dynamic (inertia) forces (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M5N1MMxe, M5N1MMye, M5N1MMze, M5N2MMxe, M5N2MMye, M5N2MMze" \t\t - Dynamic (inertia) moments (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M5N1FKxe, M5N1FKye, M5N1FKze, M5N2FKxe, M5N2FKye, M5N2FKze" \t\t - Static (elastic) forces (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M5N1MKxe, M5N1MKye, M5N1MKze, M5N2MKxe, M5N2MKye, M5N2MKze" \t\t - Static (elastic) moments (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M6N1TDxss, M6N1TDyss, M6N1TDzss, M6N1RDxe, M6N1RDye, M6N1RDze" \t\t - GBSupp1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M6N2TDxss, M6N2TDyss, M6N2TDzss, M6N2RDxe, M6N2RDye, M6N2RDze" \t\t - GBSupp1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M6N1FMxe, M6N1FMye, M6N1FMze, M6N2FMxe, M6N2FMye, M6N2FMze" \t\t - Dynamic (inertia) forces (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M6N1MMxe, M6N1MMye, M6N1MMze, M6N2MMxe, M6N2MMye, M6N2MMze" \t\t - Dynamic (inertia) moments (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M6N1FKxe, M6N1FKye, M6N1FKze, M6N2FKxe, M6N2FKye, M6N2FKze" \t\t - Static (elastic) forces (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M6N1MKxe, M6N1MKye, M6N1MKze, M6N2MKxe, M6N2MKye, M6N2MKze" \t\t - Static (elastic) moments (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M7N1TDxss, M7N1TDyss, M7N1TDzss, M7N1RDxe, M7N1RDye, M7N1RDze" \t\t - GBSupp2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M7N2TDxss, M7N2TDyss, M7N2TDzss, M7N2RDxe, M7N2RDye, M7N2RDze" \t\t - GBSupp2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M7N1FMxe, M7N1FMye, M7N1FMze, M7N2FMxe, M7N2FMye, M7N2FMze" \t\t - Dynamic (inertia) forces (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
-                     {'value': '"M7N1MMxe, M7N1MMye, M7N1MMze, M7N2MMxe, M7N2MMye, M7N2MMze" \t\t - Dynamic (inertia) moments (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M7N1FKxe, M7N1FKye, M7N1FKze, M7N2FKxe, M7N2FKye, M7N2FKze" \t\t - Static (elastic) forces (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M7N1MKxe, M7N1MKye, M7N1MKze, M7N2MKxe, M7N2MKye, M7N2MKze" \t\t - Static (elastic) moments (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M8N1TDxss, M8N1TDyss, M8N1TDzss, M8N1RDxe, M8N1RDye, M8N1RDze" \t\t - Shaft pt2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M8N2TDxss, M8N2TDyss, M8N2TDzss, M8N2RDxe, M8N2RDye, M8N2RDze" \t\t - Shaft pt2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M9N1TDxss, M9N1TDyss, M9N1TDzss, M9N1RDxe, M9N1RDye, M9N1RDze" \t\t - Shaft pt3 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"M9N2TDxss, M9N2TDyss, M9N2TDzss, M9N2RDxe, M9N2RDye, M9N2RDze" \t\t - Shaft pt3 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"ReactFXss, ReactFYss, ReactFZss, ReactMXss, ReactMYss, ReactMZss" \t\t - - Base moments and forces for bottom-fixed/landbased.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"IntfFXss, IntfFYss, IntfFZss, IntfMXss, IntfMYss, IntfMZss" \t\t - - Interface joint moments and forces.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"IntfTDXss, IntfTDYss, IntfTDZss, IntfRDXss, IntfRDYss , IntfRDZss" \t\t - - Displacements and rotations of the TP reference point in global coordinate sys.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     {'value': '"IntfTAXss, IntfTAYss, IntfTAZss, IntfRAXss, IntfRAYss, IntfRAZss" \t\t - - Translational and rotational accelerations of the TP reference point (platform reference point) location in SS coordinate system', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
-                     ]
+        print("--------self.memOutDict----------")
+        print(self.memOutDict)
+        sdoutlist = []
+        for key, data in self.memOutDict.items():
+            mc = data['memCount'][0]
+            tempdict = {
+                        'value': f'"M{mc}N1TDxss, M{mc}N1TDyss, M{mc}N1TDzss, M{mc}N2TDxss, M{mc}N2TDyss, M{mc}N2TDzss" \t\t - {key} displacements'         ,
+                        'label': '',
+                        'isComment': True,
+                        'descr': '',
+                        'tabType': 0
+                        }
+            sdoutlist.append(tempdict)
+            tempdict = {
+                        'value': f'"M{mc}N1RDxe, M{mc}N1RDye, M{mc}N1RDze, M{mc}N2RDxe, M{mc}N2RDye, M{mc}N2RDze" \t\t - {key} rotations'         ,
+                        'label': '',
+                        'isComment': True,
+                        'descr': '',
+                        'tabType': 0
+                        }
+            sdoutlist.append(tempdict)
+            tempdict = {
+                        'value': f'"M{mc}N1FKxe, M{mc}N1FKye, M{mc}N1FKze, M{mc}N2FKxe, M{mc}N2FKye, M{mc}N2FKze" \t\t - {key} static (elastic) forces'         ,
+                        'label': '',
+                        'isComment': True,
+                        'descr': '',
+                        'tabType': 0
+                        }
+            sdoutlist.append(tempdict)
+            tempdict = {
+                        'value': f'"M{mc}N1MKxe, M{mc}N1MKye, M{mc}N1MKze, M{mc}N2MKxe, M{mc}N2MKye, M{mc}N2MKze" \t\t - {key} static (elastic) moments'         ,
+                        'label': '',
+                        'isComment': True,
+                        'descr': '',
+                        'tabType': 0
+                        }
+            sdoutlist.append(tempdict)
+        
+        sdoutlist.append({'value': '"ReactFXss, ReactFYss, ReactFZss, ReactMXss, ReactMYss, ReactMZss" \t\t - Base moments and forces for bottom-fixed/landbased.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
+        sdoutlist.append({'value': '"IntfFXss, IntfFYss, IntfFZss, IntfMXss, IntfMYss, IntfMZss" \t\t - Interface joint moments and forces.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
+        sdoutlist.append({'value': '"IntfTDXss, IntfTDYss, IntfTDZss, IntfRDXss, IntfRDYss , IntfRDZss" \t\t - Displacements and rotations of the TP reference point in global coordinate sys.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
+        sdoutlist.append({'value': '"IntfTAXss, IntfTAYss, IntfTAZss, IntfRAXss, IntfRAYss, IntfRAZss" \t\t - Translational and rotational accelerations of the TP reference point (platform reference point) location in SS coordinate system', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
+
+        # sdoutlist = [{'value': '"M1N1TDxss, M1N1TDyss, M1N1TDzss, M2N2TDxss, M2N2TDyss, M2N2TDzss" \t\t - Tower base and tower top displacements', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M1N1RDxe, M1N1RDye, M1N1RDze, M2N2RDxe, M2N2RDye, M2N2RDze" \t\t - Tower base and tower top rotations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M2N2TAxe, M2N2TAye, M2N2TAze, M2N2RAxe, M2N2RAye, M2N2RAze" \t\t - Tower base and tower top accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M1N1FKxe, M1N1FKye, M1N1FKze, M2N2FKxe, M2N2FKye, M2N2FKze" \t\t - Static (elastic) forces (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M1N1MKxe, M1N1MKye, M1N1MKze, M2N2MKxe, M2N2MKye, M2N2MKze" \t\t - Static (elastic) moments (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M1N1FMxe, M1N1FMye, M1N1FMze, M2N2FMxe, M2N2FMye, M2N2FMze" \t\t - Dynamic (inertia) forces (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M1N1MMxe, M1N1MMye, M1N1MMze, M2N2MMxe, M2N2MMye, M2N2MMze" \t\t - Dynamic (inertia) moments (tower base and tower top)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M3N1TDxss, M3N1TDyss, M3N1TDzss, M3N1RDxe, M3N1RDye, M3N1RDze" \t\t - Shaft tip motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M3N2TDxss, M3N2TDyss, M3N2TDzss, M3N2RDxe, M3N2RDye, M3N2RDze" \t\t - Shaft tip motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M3N1TAxe, M3N1TAye, M3N1TAze, M3N1RAxe, M3N1RAye, M3N1RAze" \t\t - Shaft accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M3N2TAxe, M3N2TAye, M3N2TAze, M3N2RAxe, M3N2RAye, M3N2RAze" \t\t - Shaft accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M3N1FMxe, M3N1FMye, M3N1FMze, M3N2FMxe, M3N2FMye, M3N2FMze" \t\t - Dynamic (inertia) forces (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M3N1MMxe, M3N1MMye, M3N1MMze, M3N2MMxe, M3N2MMye, M3N2MMze" \t\t - Dynamic (inertia) moments (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M3N1FKxe, M3N1FKye, M3N1FKze, M3N2FKxe, M3N2FKye, M3N2FKze" \t\t - Static (elastic) forces (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M3N1MKxe, M3N1MKye, M3N1MKze, M3N2MKxe, M3N2MKye, M3N2MKze" \t\t - Static (elastic) moments (shaft to MB1)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M4N1TDxss, M4N1TDyss, M4N1TDzss, M4N1RDxe, M4N1RDye, M4N1RDze" \t\t - MB1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M4N2TDxss, M4N2TDyss, M4N2TDzss, M4N2RDxe, M4N2RDye, M4N2RDze" \t\t - MB1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M4N1TAxe, M4N1TAye, M4N1TAze, M4N1RAxe, M4N1RAye, M4N1RAze" \t\t - MB1 accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M4N2TAxe, M4N2TAye, M4N2TAze, M4N2RAxe, M4N2RAye, M4N2RAze" \t\t - MB1 accelerations (local coords)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M4N1FMxe, M4N1FMye, M4N1FMze, M4N2FMxe, M4N2FMye, M4N2FMze" \t\t - Dynamic (inertia) forces (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M4N1MMxe, M4N1MMye, M4N1MMze, M4N2MMxe, M4N2MMye, M4N2MMze" \t\t - Dynamic (inertia) moments (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M4N1FKxe, M4N1FKye, M4N1FKze, M4N2FKxe, M4N2FKye, M4N2FKze" \t\t - Static (elastic) forces (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M4N1MKxe, M4N1MKye, M4N1MKze, M4N2MKxe, M4N2MKye, M4N2MKze" \t\t - Static (elastic) moments (MB1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M5N1TDxss, M5N1TDyss, M5N1TDzss, M5N1RDxe, M5N1RDye, M5N1RDze" \t\t - MB2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M5N2TDxss, M5N2TDyss, M5N2TDzss, M5N2RDxe, M5N2RDye, M5N2RDze" \t\t - MB2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M5N1FMxe, M5N1FMye, M5N1FMze, M5N2FMxe, M5N2FMye, M5N2FMze" \t\t - Dynamic (inertia) forces (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M5N1MMxe, M5N1MMye, M5N1MMze, M5N2MMxe, M5N2MMye, M5N2MMze" \t\t - Dynamic (inertia) moments (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M5N1FKxe, M5N1FKye, M5N1FKze, M5N2FKxe, M5N2FKye, M5N2FKze" \t\t - Static (elastic) forces (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M5N1MKxe, M5N1MKye, M5N1MKze, M5N2MKxe, M5N2MKye, M5N2MKze" \t\t - Static (elastic) moments (MB2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M6N1TDxss, M6N1TDyss, M6N1TDzss, M6N1RDxe, M6N1RDye, M6N1RDze" \t\t - GBSupp1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M6N2TDxss, M6N2TDyss, M6N2TDzss, M6N2RDxe, M6N2RDye, M6N2RDze" \t\t - GBSupp1 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M6N1FMxe, M6N1FMye, M6N1FMze, M6N2FMxe, M6N2FMye, M6N2FMze" \t\t - Dynamic (inertia) forces (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M6N1MMxe, M6N1MMye, M6N1MMze, M6N2MMxe, M6N2MMye, M6N2MMze" \t\t - Dynamic (inertia) moments (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M6N1FKxe, M6N1FKye, M6N1FKze, M6N2FKxe, M6N2FKye, M6N2FKze" \t\t - Static (elastic) forces (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M6N1MKxe, M6N1MKye, M6N1MKze, M6N2MKxe, M6N2MKye, M6N2MKze" \t\t - Static (elastic) moments (GBSupp1 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M7N1TDxss, M7N1TDyss, M7N1TDzss, M7N1RDxe, M7N1RDye, M7N1RDze" \t\t - GBSupp2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M7N2TDxss, M7N2TDyss, M7N2TDzss, M7N2RDxe, M7N2RDye, M7N2RDze" \t\t - GBSupp2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M7N1FMxe, M7N1FMye, M7N1FMze, M7N2FMxe, M7N2FMye, M7N2FMze" \t\t - Dynamic (inertia) forces (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0}, 
+        #              {'value': '"M7N1MMxe, M7N1MMye, M7N1MMze, M7N2MMxe, M7N2MMye, M7N2MMze" \t\t - Dynamic (inertia) moments (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M7N1FKxe, M7N1FKye, M7N1FKze, M7N2FKxe, M7N2FKye, M7N2FKze" \t\t - Static (elastic) forces (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M7N1MKxe, M7N1MKye, M7N1MKze, M7N2MKxe, M7N2MKye, M7N2MKze" \t\t - Static (elastic) moments (GBSupp2 flex beam)', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M8N1TDxss, M8N1TDyss, M8N1TDzss, M8N1RDxe, M8N1RDye, M8N1RDze" \t\t - Shaft pt2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M8N2TDxss, M8N2TDyss, M8N2TDzss, M8N2RDxe, M8N2RDye, M8N2RDze" \t\t - Shaft pt2 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M9N1TDxss, M9N1TDyss, M9N1TDzss, M9N1RDxe, M9N1RDye, M9N1RDze" \t\t - Shaft pt3 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              {'value': '"M9N2TDxss, M9N2TDyss, M9N2TDzss, M9N2RDxe, M9N2RDye, M9N2RDze" \t\t - Shaft pt3 flex beam motion', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},
+        #              ]
         
         self.sd.data[sdOutList_istart:sdOutList_istart] = sdoutlist
 
@@ -1632,18 +1867,16 @@ class Model:
         self.ed['TowerBsHt'] = np.round(self.baseF.Ed['TowerHt']+Tow2ShftZ-smallValue*2,2)
         self.ed['PtfmRefzt'] = np.round(self.baseF.Ed['TowerHt']+Tow2ShftZ-smallValue*2,2)
         self.ed['PtfmCMzt'] = self.ed['PtfmRefzt']
-        
-        # #TODO: Fix
-        # if not ShftTipCoordX:
-        #     #Calculates the position of the shaft strain gauge in ElastoDyn so that it coincides with the shaft tip in SubDyn
-        #     self.ed['ShftGagL'] = np.round(-(self.ed['OverHang']-self.ShftTipCoord[0]/cosd(-self.ed['ShftTilt'])),3)
-        # else: 
-        #     self.ed['ShftGagL'] = np.round(-(self.ed['OverHang']-ShftTipCoordX/cosd(-self.ed['ShftTilt'])),3)
+        print("self.ShftTipCoord")
+        print(self.ShftTipCoord)
+        #TODO: Fix
+        try: 
+            self.ed['ShftGagL'] = np.round(-(self.ed['OverHang']-self.ShftTipCoord[0]/tools.cosd(-self.ed['ShftTilt'])),3)
+        except:
+            "Warning: ShftGagL not updated because no shaft is modelled"
 
         #----- Mass and inertia -----#
-        self.ed['NacMass'] = 0 
-        self.ed['NacYIner'] = 0 
-        self.ed['YawBrMass'] = 0 
+
         self.ed['PtfmRIner'] = self.inputs.PtfmRIner
         self.ed['PtfmMass'] = 0.0
         self.ed['PtfmPIner'] = 0.0
@@ -1818,35 +2051,6 @@ class Model:
         if hasattr(self, 'hd'):
             self.writeHydroDyn()
 
-def rod_prop(s, Di, ti, rho):
-    L = s.max() - s.min()
-
-    def equal_pts(xi):
-        if len(xi) < len(s) and len(xi) == 2:
-            x = np.interp((s - s.min()) / L, [0, 1], xi)
-        elif len(xi) == len(s):
-            x = xi
-        else:
-            raise ValueError("Unknown grid of input", str(xi))
-        return x
-
-    D = equal_pts(Di)
-    print("D", D)
-    t = equal_pts(ti)
-    print("t", t)
-    y = 0.25 * rho * np.pi * (D**2 - (D - 2 * t) ** 2)
-    m = np.trapz(y, s)
-    cm = np.trapz(y * s, s) / m
-    Dm = D.mean()
-    tm = t.mean()
-    I = np.array(
-        [
-            0.5 * 0.25 * (Dm**2 + (Dm - 2 * tm) ** 2),
-            (1.0 / 12.0) * (3 * 0.25 * (Dm**2 + (Dm - 2 * tm) ** 2) + L**2),
-            (1.0 / 12.0) * (3 * 0.25 * (Dm**2 + (Dm - 2 * tm) ** 2) + L**2),
-        ]
-    )
-    return m, cm, m * I
 
 # --- MAIN SCRIPT STARTS BELOW: ----------------------------------------------#
 if __name__ == '__main__':

@@ -82,6 +82,7 @@ class BaseFiles:
         self.edBldFile3 = self.Ed['BldFile3'][1:-1]
         self.EdTw = FASTInputFile(os.path.join(self.EdPath, edTwrFile)) #ElastoDyn Tower-object
 
+
 class MainFiles:
     """File-name and path to .fst-file making up the OpenFAST model with SubDyn-tower and drivetrain"""
     def __init__(self, file_paths):
@@ -179,13 +180,16 @@ class InputParameters():
             self.Tow2GenStatY   = float(drt_inp['Tow2GenStatY'])
             self.Tow2GenStatZ   = float(drt_inp['Tow2GenStatZ'])
 
-            self.GenRotMass    = float(drt_inp['GenStatMass'])
-            self.GenRotMXX     = float(drt_inp['GenStatMXX'])
-            self.GenRotMYY     = float(drt_inp['GenStatMYY'])
-            self.GenRotMZZ     = float(drt_inp['GenStatMZZ'])
-            self.Tow2GenRotX   = float(drt_inp['Tow2GenStatX'])
-            self.Tow2GenRotY   = float(drt_inp['Tow2GenStatY'])
-            self.Tow2GenRotZ   = float(drt_inp['Tow2GenStatZ'])
+            self.GenRotMass    = float(drt_inp['GenRotMass'])
+            self.GenRotMXX     = float(drt_inp['GenRotMXX'])
+            self.GenRotMYY     = float(drt_inp['GenRotMYY'])
+            self.GenRotMZZ     = float(drt_inp['GenRotMZZ'])
+            self.Tow2GenRotX   = float(drt_inp['Tow2GenRotX'])
+            self.Tow2GenRotY   = float(drt_inp['Tow2GenRotY'])
+            self.Tow2GenRotZ   = float(drt_inp['Tow2GenRotZ'])
+            
+            self.BdpltMassTow2Mid   = float(drt_inp['BdpltMassTow2Mid'])
+            self.BdpltMassMid2Nose  = float(drt_inp['BdpltMassMid2Nose'])
 
         else:
             # Bedplate
@@ -248,7 +252,7 @@ class InputParameters():
             'k33': float(drt_inp['Kxx_MB1']), 
             'k44': float(drt_inp['Kbb_MB1']), 
             'k55': float(drt_inp['Kgg_MB1']), 
-            'k66': 0
+            'k66': float(drt_inp['Kaa_MB1'])
             }
         self.MB2Spring = {
             'k11': float(drt_inp['Kyy_MB2']), 
@@ -256,7 +260,7 @@ class InputParameters():
             'k33': float(drt_inp['Kxx_MB2']), 
             'k44': float(drt_inp['Kbb_MB2']), 
             'k55': float(drt_inp['Kgg_MB2']), 
-            'k66': 0
+            'k66': float(drt_inp['Kaa_MB2'])
             }
         self.MB_cosm        = list(drt_inp['MB_cosm'])
 
@@ -605,84 +609,6 @@ def calculateShaftBeamRho(ShaftProps):
     return ShaftProps
 
 
-def wisdem_drivetrain_DD(yaml_path = r'C:\OpenFAST_Workspace\IEA-15-240-RWT\WT_Ontology\\IEA-15-240-RWT_VolturnUS-S.yaml'):
- 
-    # ----Geometry --------------------------------------# 
-
-    OverHangX = OverHang*tools.cosd(ShftTilt)
-    # The following calculations are according to: https://wisdem.readthedocs.io/en/master/wisdem/drivetrainse/layout.html
-    Lgr =  Lh1/2 # Hub flange to generator rotor side According to WISDEM (reported values don't make sense)
-    Lgs = LGen - Lgr - L12 # Generator stator to bedplate flange According to WISDEM (reported values don't make sense)
-    L2n = 2*Lgs # MB2 to bedplate flange According to WISDEM (reported values don't make sense)
-    Llss = L12 + Lh1 # Length of low speed shaft
-    # Lnose = L12 + L2n # Length of nose WISDEM calculations
-    Lnose = Llss # Length of nose Report
-
-    # L_drive = Overhang - HubRad - L_bedplate/cosd(ShftTilt) # Length from bedplate interface to hub interface (Overhang - hubR - bedplate)
-    L_drive = Lh1 + L12 + L2n # Length from bedplate interface to hub interface (Overhang - hubR - bedplate)
-
-    H_bedplate = HhttZ - (L_drive + HubRad)*tools.sind(ShftTilt) # H_bedplate = 4.875
-
-    L_bedplate = (H_bedplate - Tow2ShftZ)/tools.tand(ShftTilt) # L_bedplate = 5 m, X-direction not axial
-
-    # Bearing positions
-    Tow2MB1X = -(L_bedplate + L2n*tools.cosd(ShftTilt))
-    Tow2MB2X = -(L_bedplate + L2n*tools.cosd(ShftTilt) + L12*tools.cosd(ShftTilt))
-
-    drivetrain_props = {
-        'Tow2MB1X': Tow2MB1X,
-        'Tow2MB2X': Tow2MB2X,
-    }
-
-    turbine_props = {
-        'Tow2ShftZ': Tow2ShftZ,
-        'ShftTilt': -ShftTilt,
-        'OverHang': OverHang,
-        'OverHangX': OverHangX,
-        'TowerHt': TowerHt,
-        'TowerBsHt': TowerBsHt
-    }
-
-    BedpltJoints = {
-        'Stator':  {'xyz': [L_bedplate + Lgs*tools.cosd(ShftTilt), 
-                            0, 
-                            TowerHt + H_bedplate + Lgs*tools.sind(ShftTilt)]}, 
-                    # 'Mass': {'JMass': 40000, 'JMXX': 6.076899, 'JMYY': 800, 'JMZZ': 793.923, 'JMXY': 0, 'JMXZ': 69.46, 'JMYZ': 0, 
-                    #                                         'MCGX': 0, 'MCGY': 0, 'MCGZ': 0}},
-        'MB1': {'xyz': [L_bedplate + (L2n + L12)*tools.cosd(ShftTilt), 
-                        0, 
-                        TowerHt + H_bedplate + (L2n + L12)*tools.sind(ShftTilt)]}, 
-        'MB2': {'xyz': [L_bedplate + L2n*tools.cosd(ShftTilt), 
-                        0, 
-                        TowerHt + H_bedplate + L2n*tools.sind(ShftTilt)]}, 
-        'Bedplt_RotSide': {'xyz': [L_bedplate, 
-                        0, 
-                        TowerHt + H_bedplate]}, # Equal to nose tower side
-        'Nose_RotSide': {'xyz': [L_bedplate + Lnose*tools.cosd(ShftTilt), 
-                        0, 
-                        TowerHt + H_bedplate + Lnose*tools.sind(ShftTilt)]}, 
-                        # TODO: Taking the average for now - update!
-        'Bedplt_Mid': {'xyz': [(L_bedplate + L_bedplate + Lnose*tools.cosd(ShftTilt))/2, 
-                               0, 
-                               (TowerHt + H_bedplate + TowerHt + H_bedplate + Lnose*tools.sind(ShftTilt))/2]}, 
-        }
-    
-    # BedpltMaterial: {
-
-    
-    print(BedpltJoints)
-    ShftJoints = {
-                'ShftStrt': {'xyz': [Tow2ShftUpstrX, 0, 
-                                np.abs(Tow2ShftUpstrX*tand(ShftTilt))+Tow2ShftZ+TowerHeight]},
-                'MB1': {'xyz': [Tow2MB1X, 0, 
-                                np.abs(Tow2MB1X*tand(ShftTilt))+Tow2ShftZ+TowerHeight]},
-                'MB2': {'xyz': [Tow2MB2X, 0, 
-                                np.abs(Tow2MB2X*tand(ShftTilt))+Tow2ShftZ+TowerHeight]},
-                'ShftEnd': {'xyz': [Tow2ShftDwnstrX, 0, 
-                                np.abs(Tow2ShftDwnstrX*sind(ShftTilt))+Tow2ShftZ+TowerHeight]},
-    }  
-
-    return drivetrain_props, turbine_props
 
 # --- MAIN SCRIPT STARTS BELOW: ----------------------------------------------#
 if __name__ == '__main__':
@@ -692,4 +618,4 @@ if __name__ == '__main__':
     # --- SCRIPT CONTENT -----------------------------------------------------#
 
     # Tower(tower_type = 'tower_from_wisdem', wisdem_yaml_path='C:\myGitContributions\OpenFAST-drivetrain-modeling\Python\Tests\IEA15MW_umaine\IEA-15-240-RWT_VolturnUS-S.yaml')
-    geometry_IEA15MW()
+    print('hei')

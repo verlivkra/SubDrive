@@ -27,47 +27,48 @@ import build
 #
 #    pass
 
-def landbased(script_dir, tower_type, bedplate_type, add_nacelle_yaw_inertia = False, add_yaw_br_mass = False):
+def landbased(script_dir, tower_type, bedplate_type, shaft_type, mb_type, add_nacelle_yaw_inertia = False, add_yaw_br_mass = False):
     mymodel = build.Model(script_dir, platform_type='landbased', interface_location='shaft')
     mymodel.timeStep()
     mymodel.onshoreFixedBase()
     mymodel.buildTower(tower_type = tower_type)
     mymodel.buildBedplate(bedplate_type = bedplate_type)
-    mymodel.buildShaft()
-    mymodel.buildMainBearing(MB1or2 = 'MB1')
-    mymodel.buildMainBearing(MB1or2 = 'MB2')
+    mymodel.buildShaft(shaft_type = shaft_type)
+    mymodel.buildMainBearing(MB1or2 = 'MB1', mb_type = mb_type)
+    mymodel.buildMainBearing(MB1or2 = 'MB2', mb_type = mb_type)
     mymodel.buildGBox()
     mymodel.nacMassIner(add_nacelle_yaw_inertia = add_nacelle_yaw_inertia, add_yaw_br_mass = add_yaw_br_mass) 
     mymodel.outputs()
     mymodel.writeModel()
     mymodel.writeJSON()
 
-def monopile(script_dir, tower_type, bedplate_type, add_nacelle_yaw_inertia = False, add_yaw_br_mass = False):
+def monopile(script_dir, tower_type, bedplate_type, shaft_type, mb_type, add_nacelle_yaw_inertia = False, add_yaw_br_mass = False):
     mymodel = build.Model(script_dir, platform_type='monopile', interface_location='shaft')
     mymodel.timeStep()
     mymodel.monoPile()
     mymodel.buildTower(tower_type = tower_type)
     mymodel.buildBedplate(bedplate_type = bedplate_type)
-    mymodel.buildShaft()
-    mymodel.buildMainBearing(MB1or2 = 'MB1')
-    mymodel.buildMainBearing(MB1or2 = 'MB2')
+    mymodel.buildShaft(shaft_type = shaft_type)
+    mymodel.buildMainBearing(MB1or2 = 'MB1', mb_type = mb_type)
+    mymodel.buildMainBearing(MB1or2 = 'MB2', mb_type = mb_type)
     mymodel.buildGBox()
     mymodel.nacMassIner(add_nacelle_yaw_inertia = add_nacelle_yaw_inertia, add_yaw_br_mass = add_yaw_br_mass) 
     mymodel.outputs()
     mymodel.writeModel()
     mymodel.writeJSON()
 
-def floating(script_dir, tower_type, bedplate_type, add_nacelle_yaw_inertia = True, add_yaw_br_mass = True):
+def floating(script_dir, tower_type, bedplate_type, shaft_type, mb_type, add_nacelle_yaw_inertia = True, add_yaw_br_mass = True):
     print('Building floating platform')
-    mymodel = build.Model(script_dir, platform_type='floating', interface_location='tower')
+    mymodel = build.Model(script_dir, platform_type='floating', interface_location='shaft')
     mymodel.timeStep()
     mymodel.floatingPlatform()
     mymodel.buildTower(tower_type = tower_type)
     mymodel.buildBedplate(bedplate_type = bedplate_type)
-    # TODO Add drivetrain here
+    mymodel.buildShaft(shaft_type = shaft_type)
+    mymodel.buildMainBearing(MB1or2 = 'MB1', mb_type = mb_type)
+    mymodel.buildMainBearing(MB1or2 = 'MB2', mb_type = mb_type)
     mymodel.nacMassIner(add_nacelle_yaw_inertia = add_nacelle_yaw_inertia, add_yaw_br_mass = add_yaw_br_mass) 
     mymodel.outputs()
-    
     mymodel.writeModel()
     mymodel.writeJSON()
 

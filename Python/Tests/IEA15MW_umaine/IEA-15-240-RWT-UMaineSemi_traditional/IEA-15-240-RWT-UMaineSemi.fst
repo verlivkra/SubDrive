@@ -3,7 +3,7 @@ IEA 15 MW offshore reference model on UMaine VolturnUS-S semi-submersible floati
 ---------------------- SIMULATION CONTROL -------------------------------------- 
 False                  Echo        - Echo input data to <RootName>.ech (flag) 
 "FATAL"                AbortLevel  - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"} 
-700.0                   TMax        - Total run time (s) 
+1500.0                 TMax        - Total run time (s) 
 0.025                  DT          - Integration time step (s)  
 2                      InterpOrder - Interpolation order for input/output time history (-) {1=linear, 2=quadratic} 
 0                      NumCrctn    - Number of correction iterations (-) {0=explicit calculation, i.e., no corrections} 
@@ -47,7 +47,7 @@ False                  SumPrint    - Print summary data to "<RootName>.sum" (fla
 99999.0                ChkptTime   - Amount of time between creating checkpoint files for potential restart (s) 
 default                DT_Out      - Time step for tabular output (s) (or "default") 
 0.000000               TStart      - Time to begin tabular output (s)    
-3                      OutFileFmt  - Format for tabular (time-marching) output file (switch) {1: text file [<RootName>.out], 2: binary file [<RootName>.outb], 3: both} 
+2                      OutFileFmt  - Format for tabular (time-marching) output file (switch) {1: text file [<RootName>.out], 2: binary file [<RootName>.outb], 3: both} 
 True                   TabDelim    - Use tab delimiters in text tabular output file? (flag) {uses spaces if false} 
 "ES10.3E2"             OutFmt      - Format used for text tabular output, excluding the time channel.  Resulting field should be 10 characters. (quoted string) 
 ---------------------- LINEARIZATION ------------------------------------------- 
