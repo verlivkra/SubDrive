@@ -110,8 +110,8 @@ class InputParameters():
         if geom_from_wisdem:
             print('Collecting input from wisdem')
             wisdem_inp = tools.read_yaml(os.path.join(input_path, 'wisdem.yaml'))
-            self.Lh1    = wisdem_inp['components']['nacelle']['drivetrain']['distance_hub2mb']      # Axial distance from hub flange to MB1
-            self.L12    = wisdem_inp['components']['nacelle']['drivetrain']['distance_mb2mb']       # Axial distance from MB1 to MB2
+            self.Lh1    = wisdem_inp['components']['nacelle']['drivetrain']['distance_hub_mb']      # Axial distance from hub flange to MB1
+            self.L12    = wisdem_inp['components']['nacelle']['drivetrain']['distance_mb_mb']       # Axial distance from MB1 to MB2
             self.LGen   = wisdem_inp['components']['nacelle']['drivetrain']['generator_length']     # Axial length of generator measured from wall-centers
             self.HhttZ  = wisdem_inp['components']['nacelle']['drivetrain']['distance_tt_hub']      # Hub to tt Z
             self.Dtt    = wisdem_inp['components']['tower']['outer_shape_bem']['outer_diameter']['values'][-1]
@@ -149,6 +149,11 @@ class InputParameters():
             self.BdpltT = wisdem_inp['components']['nacelle']['drivetrain']['bedplate_wall_thickness']['values']
 
             # From input-file:
+            self.multiplierG    = float(drt_inp['multiplier_G']) # Increase torsional stiffness of drivetrain - should only be captured by 
+            self.BdpltG = self.multiplierG*self.BdpltG
+            self.ShftG = self.multiplierG*self.ShftG
+            self.NoseG = self.multiplierG*self.NoseG
+
             self.GenStatMass    = float(drt_inp['GenStatMass'])
             self.GenStatMXX     = float(drt_inp['GenStatMXX'])
             self.GenStatMYY     = float(drt_inp['GenStatMYY'])
