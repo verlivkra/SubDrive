@@ -54,7 +54,7 @@ class TaperedPipe():
         # NB! TTZ only used for testing
         self.x1, self.y1, self.z1 = coord1[0], coord1[1], coord1[2] - TTZ 
         if TTZ != 0:
-            print("WARNING! REMOVE TOWER HEIGHT FROM TAPEREDPIPE CALCULATION ONLY FOR CHECKING!")
+            print("WARNING! REMOVE TOWER HEIGHT FROM TAPEREDPIPE CALCULATION. THIS IS ONLY FOR CHECKING!")
         self.x2, self.y2, self.z2 = coord2[0], coord2[1], coord2[2] - TTZ
         
         self.L = np.sqrt((self.x1-self.x2)**2+(self.y1-self.y2)**2+(self.z1-self.z2)**2)

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">
+  <PolyData>
+    <Piece NumberOfPoints="      3" NumberOfVerts="  0" NumberOfLines="      2"
+           NumberOfStrips="  0" NumberOfPolys="      0">
+      <Points>
+        <DataArray type="Float32" NumberOfComponents="3" format="ascii">
+                      10.71233                      -0.72463                     147.87851
+                      10.71262                      -0.72466                     147.88350
+                      10.71205                      -0.72459                     147.87352
+        </DataArray>
+      </Points>
+      <PointData>
+        <DataArray type="Float32" Name="TranslationalVelocity" NumberOfComponents="3" format="ascii">
+                       2.33353                      -0.09424                      -0.19123
+                       2.33360                      -0.09424                      -0.19123
+                       2.33346                      -0.09423                      -0.19122
+        </DataArray>
+        <DataArray type="Float32" Name="RotationalVelocity" NumberOfComponents="3" format="ascii">
+                       0.00063                       0.01449                       0.00124
+                       0.00063                       0.01449                       0.00124
+                       0.00063                       0.01449                       0.00124
+        </DataArray>
+        <DataArray type="Float32" Name="TranslationalAcceleration" NumberOfComponents="3" format="ascii">
+                      -0.17754                      -0.01405                      -0.00109
+                      -0.17754                      -0.01405                      -0.00109
+                      -0.17753                      -0.01406                      -0.00108
+        </DataArray>
+        <DataArray type="Float32" Name="RotationalAcceleration" NumberOfComponents="3" format="ascii">
+                      -0.00094                      -0.00160                      -0.00183
+                      -0.00094                      -0.00160                      -0.00183
+                      -0.00094                      -0.00160                      -0.00183
+        </DataArray>
+        <DataArray type="Float32" Name="OrientationX" NumberOfComponents="3" format="ascii">
+                       0.99836                       0.00025                      -0.05717
+                       0.99836                       0.00025                      -0.05717
+                       0.99836                       0.00025                      -0.05717
+        </DataArray>
+        <DataArray type="Float32" Name="OrientationY" NumberOfComponents="3" format="ascii">
+                       0.00016                       0.99997                       0.00723
+                       0.00016                       0.99997                       0.00723
+                       0.00016                       0.99997                       0.00723
+        </DataArray>
+        <DataArray type="Float32" Name="OrientationZ" NumberOfComponents="3" format="ascii">
+                       0.05717                      -0.00723                       0.99834
+                       0.05717                      -0.00723                       0.99834
+                       0.05717                      -0.00723                       0.99834
+        </DataArray>
+      </PointData>
+      <Lines>
+        <DataArray type="Int32" Name="connectivity" format="ascii">
+      0      1
+      2      0
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+      2
+      4
+        </DataArray>
+      </Lines>
+    </Piece>
+  </PolyData>
+</VTKFile>

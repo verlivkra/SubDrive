@@ -143,5 +143,6 @@ False            OutAll         - Output all user-specified member and joint loa
 ---------------------- OUTPUT CHANNELS ----------------------------------------- 
 "Wave1Elev"               - Wave elevation at the platform reference point (0,  0)
 "B1Surge, B1Sway, B1Heave, B1Roll, B1Pitch, B1Yaw" - Platform motion
+"HydroFxi, HydroFyi, HydroFzi, HydroMxi, HydroMyi, HydroMzi"- Total integrated hydrodynamic loads from both potential flow and strip theory at (0,0,0)
 END
 ---------------------------------------------------------------------------------------														   

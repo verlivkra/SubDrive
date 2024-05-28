@@ -9,7 +9,7 @@ Geom_from_WISDEM: True # If false: Get geometry from this file. If True: Get geo
 Kxx_MB1: 3E+09   #[N/m]
 Kyy_MB1: 1E+10          #[N/m] Based on Fiona's estimates
 Kzz_MB1: 1E+10          #[N/m] Based on Fiona's estimates
-Kaa_MB1: 5.000E+10      #[Nm/rad] Stiff
+Kaa_MB1: 5.000E+12      #[Nm/rad] Stiff
 Kbb_MB1: 0 #1.2108E+09     #[Nm/rad]
 Kgg_MB1: 0 #8.6224E+08     #[Nm/rad]
 # Generator side bearing

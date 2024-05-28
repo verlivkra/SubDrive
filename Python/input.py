@@ -16,31 +16,8 @@ from openfast_toolbox.io  import FASTInputFile
 import tools
 
 # --- FUNCTION DEFINITIONS ---------------------------------------------------#
-# def example_function(arg1, arg2):
-#    """
-#    Example of docstring of a function.
-#
-#    Arguments:
-#        arg1 (float, int):
-#            Argument that can be of either float or integer type.
-#        arg2 (list of str):
-#            Argument that is a list of strings.
-#    Returns:
-#        return_value (float):
-#            Return value of type float.
-#    """
-#
-#    pass
 
 
-# class Input():
-#     # self.origED -> TODO: I want the base-files to be available for the Tower class for instnace - nested class?
-#     # class tower
-#     # class direct drive wisdem
-
-def generate_yaml(): 
-
-    return
 
 class FilePaths:
     def __init__(self, 
@@ -99,7 +76,7 @@ class InputParameters():
         gen_inp = tools.read_yaml(os.path.join(input_path, 'input_parameters.yaml'))
         #Drivetrain input
         drt_file = tools.find_file_by_extension(input_path, '_drivetrain.yaml')
-        # TODO: ADD Try except/Read yaml-file if wisdem - Men må ha e.g. lagerparametere fra input-fil uansett!
+
         drt_inp = tools.read_yaml(os.path.join(input_path, drt_file))
 
         # Time step and simulation duration
@@ -190,6 +167,35 @@ class InputParameters():
             
             self.BdpltMassTow2Mid   = float(drt_inp['BdpltMassTow2Mid'])
             self.BdpltMassMid2Nose  = float(drt_inp['BdpltMassMid2Nose'])
+            # -------- Main bearing stiffness and cosine matrix must be specified by user even though other drivetrain input comes from wisdem -------------
+            self.MB1Spring = {
+                'k11': float(drt_inp['Kyy_MB1']), 
+                'k22': float(drt_inp['Kzz_MB1']), 
+                'k33': float(drt_inp['Kxx_MB1']), 
+                'k44': float(drt_inp['Kbb_MB1']), 
+                'k55': float(drt_inp['Kgg_MB1']), 
+                'k66': float(drt_inp['Kaa_MB1'])
+                }
+            self.MB2Spring = {
+                'k11': float(drt_inp['Kyy_MB2']), 
+                'k22': float(drt_inp['Kzz_MB2']), 
+                'k33': float(drt_inp['Kxx_MB2']), 
+                'k44': float(drt_inp['Kbb_MB2']), 
+                'k55': float(drt_inp['Kgg_MB2']), 
+                'k66': float(drt_inp['Kaa_MB2'])
+                }
+            self.MB_cosm        = list(drt_inp['MB_cosm'])
+        
+        elif drt_file == 'simple_drivetrain.yaml':
+            # Shaft 
+            ShftProps       = drt_inp['ShaftProps']
+            self.ShftE      = float(ShftProps['E'])
+            self.ShftG      = float(ShftProps['G'])
+            self.ShftRho    = float(ShftProps['rho'])
+            self.ShftOD     = float(ShftProps['D_o']) 
+            self.ShftT      = float(ShftProps['t'])
+            self.ShftL      = float(ShftProps['L']) 
+            self.Tow2ShftXGenSide = float(drt_inp['Tow2ShftXGenSide'])
 
         else:
             # Bedplate
@@ -245,24 +251,23 @@ class InputParameters():
             }
             self.GB_cosm        = list(drt_inp['GB_cosm'])
 
-        # -------- Main bearing stiffness and cosine matrix must be specified by user even though other drivetrain input comes from wisdem -------------
-        self.MB1Spring = {
-            'k11': float(drt_inp['Kyy_MB1']), 
-            'k22': float(drt_inp['Kzz_MB1']), 
-            'k33': float(drt_inp['Kxx_MB1']), 
-            'k44': float(drt_inp['Kbb_MB1']), 
-            'k55': float(drt_inp['Kgg_MB1']), 
-            'k66': float(drt_inp['Kaa_MB1'])
-            }
-        self.MB2Spring = {
-            'k11': float(drt_inp['Kyy_MB2']), 
-            'k22': float(drt_inp['Kzz_MB2']), 
-            'k33': float(drt_inp['Kxx_MB2']), 
-            'k44': float(drt_inp['Kbb_MB2']), 
-            'k55': float(drt_inp['Kgg_MB2']), 
-            'k66': float(drt_inp['Kaa_MB2'])
-            }
-        self.MB_cosm        = list(drt_inp['MB_cosm'])
+            self.MB1Spring = {
+                'k11': float(drt_inp['Kyy_MB1']), 
+                'k22': float(drt_inp['Kzz_MB1']), 
+                'k33': float(drt_inp['Kxx_MB1']), 
+                'k44': float(drt_inp['Kbb_MB1']), 
+                'k55': float(drt_inp['Kgg_MB1']), 
+                'k66': float(drt_inp['Kaa_MB1'])
+                }
+            self.MB2Spring = {
+                'k11': float(drt_inp['Kyy_MB2']), 
+                'k22': float(drt_inp['Kzz_MB2']), 
+                'k33': float(drt_inp['Kxx_MB2']), 
+                'k44': float(drt_inp['Kbb_MB2']), 
+                'k55': float(drt_inp['Kgg_MB2']), 
+                'k66': float(drt_inp['Kaa_MB2'])
+                }
+            self.MB_cosm        = list(drt_inp['MB_cosm'])
 
         
 class Tower:

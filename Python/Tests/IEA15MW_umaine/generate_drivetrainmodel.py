@@ -72,5 +72,7 @@ if __name__ == '__main__':
         cases.monopile(script_dir, 'tower_from_elastodyn', 'straight_beam', 'DTU10MW_mediumspeed', 'DTU10MW_mediumspeed', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
     elif predefined_case == 'IEA15MW_floating':
         cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+    elif predefined_case == 'shaft_only':
+        cases.monopile_shaft_only(script_dir, 'tower_from_elastodyn', 'none', 'shaft_only', 'shaft_only', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
 
 
