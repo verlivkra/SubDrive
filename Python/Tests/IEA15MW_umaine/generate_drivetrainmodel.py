@@ -9,7 +9,6 @@ Description of this script.
 # --- MODULE IMPORTS ---------------------------------------------------------#
 import os
 import sys
-import shutil
 
 drtr_module_path = r'C:\Users\veronlk\OneDrive - NTNU\myGitContributions\OpenFAST-drivetrain-modeling\Python'
 if drtr_module_path not in sys.path:
