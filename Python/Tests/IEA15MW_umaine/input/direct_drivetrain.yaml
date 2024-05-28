@@ -3,6 +3,8 @@
 # Only main bearing input here
 #-------------Geometric input----------------
 Geom_from_WISDEM: True # If false: Get geometry from this file. If True: Get geometry from WISDEM input file "wisdem.yaml".
+#-------------Drivetrain torsional stiffness multiplier-------------
+multiplier_G: 100
 #-------------Main bearings------------------
 # Rotor side bearing
 # Local coordinate system (x aligned with shaft, z pointing upwards)
@@ -26,9 +28,9 @@ MB_cosm: [  0,              -1,     0,
             9.945219E-01,   0,      -1.045285E-01] 
 MB1Mass: 
 #------------Generator stator----------------# Note that report has errors. Taken instead from https://github.com/IEAWindTask37/IEA-15-240-RWT/blob/master/Documentation/IEA-15-240-RWT_tabular.xlsx 
-Tow2GenStatX: -6.019415    #[m] Horizontal distance from tower to generator mass along global X
+Tow2GenStatX: -6.516676    #[m] Horizontal distance from tower to generator mass along global X
 Tow2GenStatY: 0            #[m] Transverse distance from tower to generator mass along global Y
-Tow2GenStatZ: 4.982125     #[m] Vertical distance from tower top to generator mass
+Tow2GenStatZ: 5.034390     #[m] Vertical distance from tower top to generator mass
 GenStatMass:    238490     #[kg]
 # Mass moments of inertia in global coordinates
 GenStatMXX:     3360624    #[kgm2] # From IEA 15 MW report table 5-1 March 2020 version
@@ -38,9 +40,9 @@ GenStatMXY:     0          #[kgm2]
 GenStatMXZ:     0          #[kgm2] 
 GenStatMYZ:     0          #[kgm2] 
 #------------Generator rotor----------------# Note that report has errors. Taken instead from https://github.com/IEAWindTask37/IEA-15-240-RWT/blob/master/Documentation/IEA-15-240-RWT_tabular.xlsx 
-Tow2GenRotX: -6.019415    #[m] Horizontal distance from tower to generator mass along global X
+Tow2GenRotX: -6.516676    #[m] Horizontal distance from tower to generator mass along global X
 Tow2GenRotY: 0            #[m] Transverse distance from tower to generator mass along global Y
-Tow2GenRotZ: 4.982125     #[m] Vertical distance from tower top to generator mass
+Tow2GenRotZ: 5.034390     #[m] Vertical distance from tower top to generator mass
 GenRotMass:    130349     #[kg]
 # Mass moments of inertia in global coordinates
 # Transformed from local to global coordinates. Based on IEA 15 MW report table 5-1 March 2020 version
