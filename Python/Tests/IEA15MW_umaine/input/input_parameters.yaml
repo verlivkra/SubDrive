@@ -16,7 +16,7 @@ CBDamp: [0.51, 0.51, 0.47, 0.80, 0.97, 0.1] #list [-]
 NModes: 17              #[-]
 # Mass and stiffness proportional damping coefficients (Rayleigh Damping). 
 # If set to "Calculate", will be calculated based on ElastoDyn tower stiffness proportional damping in traditional model, and user input on tower system freq and damping
-RayleighCoffs: [0, 0] #Calculate #List or "Calculate". "Calculate" only supported for floating, where only stiffness proportional damping is applied
+RayleighCoffs: False #Calculate #List or "Calculate". "Calculate" only supported for floating, where only stiffness proportional damping is applied
 # If RayleighCoffs is set to "Calculate", the user must provide the natural frequency and damping of the first system (coupled) tower natural frequency
 system_1twr_freq: 0.341  # Hz (or None)
 system_1twr_damp: 0.0028 # [-] (or None) 
