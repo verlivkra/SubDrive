@@ -97,8 +97,14 @@ class InputParameters():
         if gen_inp['RayleighCoffs'] == 'Calculate':
             beta = SD_beta_from_ED_damp(system_1twr_freq, system_1twr_damp)
             self.RayleighCoffs = [0, beta] 
+            self.GuyanDampMod = 1
+        elif gen_inp['RayleighCoffs'] == False:
+            self.RayleighCoffs = [0, 0] 
+            self.GuyanDampMod = 0
         else:
             self.RayleighCoffs = gen_inp['RayleighCoffs']
+            self.GuyanDampMod = 1
+
         
         # Tower
         self.TowerE     = float(gen_inp['TowerE']) if gen_inp['TowerE'] != 'None' else None
