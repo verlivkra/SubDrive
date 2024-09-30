@@ -10,7 +10,7 @@ Description of this script.
 import os
 import sys
 
-drtr_module_path = r'C:\Users\veronlk\OneDrive - NTNU\myGitContributions\OpenFAST-drivetrain-modeling\Python'
+drtr_module_path = r'C:\Users\veronlk\OneDrive - NTNU\myGitContributions\SubDrive\Python'
 if drtr_module_path not in sys.path:
     sys.path.append(drtr_module_path)
 import cases, tools
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # --- INPUT VARIABLES AND CONSTANTS --------------------------------------#
     # predefined_case = 'IEA15MW_floating' # Any of 'DTU10MW_landbased', 'DTU10MW_monopile', 'IEA15MW_floating'
-    predefined_case = 'IEA15MW_floating_towerOnly'
+    predefined_case = 'IEA15MW_floating'
 
     # --- SCRIPT CONTENT -----------------------------------------------------#
 
@@ -37,10 +37,16 @@ if __name__ == '__main__':
 
     print("Creating new directory '_drivetrain' and copying files...")
     trad_fol = tools.find_folder_by_keyword(script_dir, '_traditional')
+    print("------------------")
+    print(trad_fol)
+    print("------------------")
     trad_dir = os.path.join(script_dir, trad_fol)
 
     # Create new directory
     drive_fol = trad_fol.replace('_traditional', '_drivetrain')
+    print("------------------")
+    print(drive_fol)
+    print("------------------")
     drive_dir = os.path.join(script_dir, drive_fol)
     tools.create_overwrite_directory(drive_dir)
 
