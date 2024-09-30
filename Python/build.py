@@ -424,7 +424,7 @@ class Model:
             else: 
                 self.BPropSetID += 1
                 self.BeamProp.append([self.BPropSetID, tower.E, tower.G, tower.rho, np.round(D_o, 4), np.round(t, 4)])
-                print(self.BeamProp)
+            
             
             #Cheap way of keeping track of previous property set to avoid duplicate property sets 
             prev_D_o = D_o
@@ -774,8 +774,6 @@ class Model:
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         # NB! Using input mass to get correct nacelle mass
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, self.inputs.BdpltMassTow2Mid, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
-        print("Member between tower and bedplate mid")
-        print(self.MemberID, self.inputs.BdpltMassTow2Mid)
 
         # Member between bedplate mid and nose generator side
         jnt = BedpltJoints['Nose_GenSide']
@@ -790,15 +788,11 @@ class Model:
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         # NB! Using input mass to get correct nacelle mass
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, self.inputs.BdpltMassMid2Nose, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
-        print("Member between bedplate mid and nose generator side")
-        print(self.MemberID, self.inputs.BdpltMassMid2Nose)
 
         # Member between nose generator side and stator attachment
         jnt = BedpltJoints['Stator_Attachment']
         jntCrds = jnt['xyz']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
-        print("Generator stator attachment")
-        print(jntX, jntY, jntZ)
 
         self.JointID+=1
         self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
@@ -808,8 +802,6 @@ class Model:
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, NoseGenSide_PropSetID, NoseGenSide_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
-        print("Member between nose generator side and stator attachment")
-        print(self.MemberID, pipe.mass)
 
         # Member between stator attachment to MB2
         jnt = BedpltJoints['MB2']
@@ -824,8 +816,6 @@ class Model:
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, NoseGenSide_PropSetID, NoseGenSide_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
-        print("Member between stator attachment to MB2")
-        print(self.MemberID, pipe.mass)
 
         # Member between MB2 and MB1
         jnt = BedpltJoints['MB1']
@@ -840,16 +830,12 @@ class Model:
         self.Members.append([self.MemberID, self.JointID-1, self.JointID, NoseGenSide_PropSetID, NoseRotSide_PropSetID , 1, -1]) #MType = 1: Beam
         pipe = self.pipeInpByMemID(self.MemberID, TTZ = 0)
         self.drTrMassProps.append([pipe.CMx, pipe.CMy, pipe.CMz, pipe.mass, pipe.JMXX, pipe.JMYY, pipe.JMZZ]) 
-        print("Member between MB2 and MB1")
-        print(self.MemberID, pipe.mass)
 
         # Add stator mass
         jnt = BedpltJoints['Stator_Mass']
         jntCrds = jnt['xyz']
         mass = jnt['Mass']
         jntX, jntY, jntZ = jntCrds[0], jntCrds[1], jntCrds[2]
-        print("Generator stator mass com")
-        print(jntX, jntY, jntZ)
         self.JointID+=1
         self.Joints.append([self.JointID, jntX, jntY, jntZ, 1, 0.0, 0.0, 0.0, 0.0]) 
         
@@ -1571,7 +1557,7 @@ class Model:
             memOut_count += 1
             self.memOutDict['PlatformRefz'] = {}
             self.memOutDict['PlatformRefz']['memCount'] = [memOut_count]
-            self.memOutDict['PlatformRefz']['ID'] = self.ptfmCMJtID
+            self.memOutDict['PlatformRefz']['ID'] = self.ptfmRefZJtID
             #--------Tower Base Member--------#
             self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, 2])) #Tower base member with two nodes
             memOut_count += 1
@@ -1801,8 +1787,10 @@ class Model:
     def writeJSON(self):
         "Write JSON-file labelling important subdyn-members. Useful for post-processing"
         memberLabels = {}
+        print(self.memOutDict)
         for part, content in self.memOutDict.items():
             memberLabels[part] = {}
+            print(part)
 
             counts = self.memOutDict[part]['memCount']
             if part == 'TwrBas':
@@ -2047,7 +2035,7 @@ class Model:
         self.sd['OutAll']       = True #All nodal forces and moments are output
         self.sd['CBMod']        = True #Perform C-B-reduction?
         self.sd['SttcSolve']    = True 
-        self.sd['GuyanDampMod'] =  1 #Use Rayleigh damping
+        self.sd['GuyanDampMod'] =  self.inputs.GuyanDampMod #Use Rayleigh damping
         self.sd['RayleighDamp'] = self.inputs.RayleighCoffs
         
         if self.platformType == 'floating':
