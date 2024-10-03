@@ -170,7 +170,7 @@ class Model:
         fairLeadJts = []
         #Add fairlead joints
         for con in self.md['Points']:
-            if con[1] == 'Vessel':
+            if con[1].lower() == 'vessel':
                 self.JointID += 1
                 self.Joints.append([self.JointID, float(con[2]), float(con[3]), float(con[4]), 1, 0.0, 0.0, 0.0, 0.0]) #ID, XSS, YSS, ZSS, JointType (1 = cantilever), JointDirX  JointDirY JointDirZ JointStiff            
                 fairLeadJts.append(self.JointID) #TODO add these to self? #Fairlead joints
@@ -694,7 +694,7 @@ class Model:
         Twr2ShftZ   = self.baseF.Ed['Twr2Shft']
 
         # TODO Maybe some of these should be assinged to self? What self? inputs? or main?
-        self.H_bedplate = self.inputs.HhttZ - (self.inputs.L_drive + HubRad)*tools.sind(ShftTilt) # H_bedplate = 4.875 # TODO ADd to self somehow?
+        self.H_bedplate = self.inputs.HhttZ - (self.inputs.L_drive + HubRad)*tools.sind(ShftTilt) # H_bedplate = 4.875 
         self.L_bedplate = (self.H_bedplate - Twr2ShftZ)/tools.tand(ShftTilt) # L_bedplate = 5 m, X-direction not axial
 
         # https://wisdem.readthedocs.io/en/master/wisdem/drivetrainse/components.html#bedplate
