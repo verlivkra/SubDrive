@@ -1,0 +1,57 @@
+# Assumptions:
+# Geometry from wisdem
+# Only main bearing input here
+#-------------Geometric input----------------
+Geom_from_WISDEM: True # If false: Get geometry from this file. If True: Get geometry from WISDEM input file "wisdem.yaml".
+#-------------Drivetrain torsional stiffness multiplier-------------
+multiplier_G: 100
+#-------------Main bearings------------------
+# Rotor side bearing
+# Local coordinate system (x aligned with shaft, z pointing upwards)
+Kxx_MB1: 2.5E+09          #[N/m] Based on Schaeffler estimates
+Kyy_MB1: 3.6E+10          #[N/m] Based on Schaeffler estimates
+Kzz_MB1: 4.2E+10          #[N/m] Based on Schaeffler estimates
+Kaa_MB1: 5E+12          #[Nm/rad] Based on Schaeffler estimates
+Kbb_MB1: 0              #[Nm/rad]
+Kgg_MB1: 0              #[Nm/rad]
+# Generator side bearing
+# Local coordinate system (x aligned with shaft, z pointing upwards)
+Kxx_MB2: 0              #[N/m]
+Kyy_MB2: 2.9E+10          #[N/m] Based on Schaeffler estimates
+Kzz_MB2: 6.3E+10          #[N/m] Based on Schaeffler estimates
+Kaa_MB2: 5E+12      #[Nm/rad]
+Kbb_MB2: 0          #[Nm/rad]
+Kgg_MB2: 0          #[Nm/rad]
+# Cosine matrix for bearings
+MB_cosm: [  0,              -1,     0,   
+            -1.045285E-01,  0,      -9.945219E-01,    
+            9.945219E-01,   0,      -1.045285E-01] 
+MB1Mass: 
+#------------Generator stator----------------# Note that report has errors. Taken instead from https://github.com/IEAWindTask37/IEA-15-240-RWT/blob/master/Documentation/IEA-15-240-RWT_tabular.xlsx 
+Tow2GenStatX: -7.396546    #[m] Horizontal distance from tower to generator mass along global X
+Tow2GenStatY: 0            #[m] Transverse distance from tower to generator mass along global Y
+Tow2GenStatZ: 4.919949     #[m] Vertical distance from tower top to generator mass
+GenStatMass:    254020     #[kg]
+# Mass moments of inertia in global coordinates (in component local mass center)
+GenStatMXX:     3117598    #[kgm2] # Table 11 report 2024 
+GenStatMYY:     1755330    #[kgm2] # Table 11 report 2024
+GenStatMZZ:     1755330    #[kgm2] # Table 11 report 2024
+GenStatMXY:     0          #[kgm2] 
+GenStatMXZ:     0          #[kgm2] 
+GenStatMYZ:     0          #[kgm2] 
+#------------Generator rotor----------------# Note that report has errors. Taken instead from https://github.com/IEAWindTask37/IEA-15-240-RWT/blob/master/Documentation/IEA-15-240-RWT_tabular.xlsx 
+Tow2GenRotX: -7.396546    #[m] Horizontal distance from tower to generator mass along global X
+Tow2GenRotY: 0            #[m] Transverse distance from tower to generator mass along global Y
+Tow2GenRotZ: 4.919949     #[m] Vertical distance from tower top to generator mass
+GenRotMass:    254020     #[kg]
+# Mass moments of inertia in global coordinates
+# Transformed from local to global coordinates. (in component local mass center)
+GenRotMXX:     0          #[kgm2] # 0 - GenIner in ElastoDyn
+GenRotMYY:     1755330    #[kgm2] # Table 11 report 2024
+GenRotMZZ:     1755330    #[kgm2] # Table 11 report 2024 
+GenRotMXY:     0          #[kgm2] 
+GenRotMXZ:     0          #[kgm2] 
+GenRotMYZ:     0          #[kgm2] 
+#------------Bedplate mass------------------# As calculated by SubDyn. Used to estimate remaining tower top mass
+BdpltMassTow2Mid:   5.876383E+04  #[kg] Bedplate from tower to mid bedplate Member 32
+BdpltMassMid2Nose:  1.511989E+04  #[kg] Bedplate from mid bedplate to nose Member 33

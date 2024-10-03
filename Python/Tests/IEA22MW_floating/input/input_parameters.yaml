@@ -1,0 +1,27 @@
+#--------------Time step and duration-------------------------
+# Glue-code time step. Applied to .fst, HydroDyn and ElastoDyn
+DT_fst: 0.0015   #[s]
+# SubDyn time step. 
+DT_sd : 0.0015   #[s]
+# Simulation time. 
+TMax: 600       #[s]
+#--------------ElastoDyn input--------------------------------
+# Platform roll inertia needed to counteract rotor inertia in ElastoDyn
+PtfmRIner: 8000000.00 #1% of rotor inertia [kg m^2]
+# Drivetrain torsion DOF damping in ED. If False, the value in the traditional model is chosen
+DTTorDmp: False  #[N-m/(rad/s)]
+#--------------SubDyn input------------------------------------
+# Damping Ratios for each retained mode (% of critical), same as "JDampings" in SubDyn. (last entered value will be used for all remaining modes).
+CBDamp: [1.0] #list [-]
+NModes: 17              #[-]
+# Mass and stiffness proportional damping coefficients (Rayleigh Damping). 
+# If set to "Calculate", will be calculated based on ElastoDyn tower stiffness proportional damping in traditional model, and user input on tower system freq and damping
+RayleighCoffs: False #Calculate #List or "Calculate". "Calculate" only supported for floating, where only stiffness proportional damping is applied
+# If RayleighCoffs is set to "Calculate", the user must provide the natural frequency and damping of the first system (coupled) tower natural frequency
+system_1twr_freq: None  # Hz (or None)
+system_1twr_damp: None # [-] (or None) 
+#--------------Tower material properties-----------------------
+#Unused if tower is calculated from wisdem
+TowerE: 2.00E+11    #[N/m2]
+TowerG: 79.3e+09    #[N/m2]
+TowerRho: 7850  #[kg/m3]
