@@ -139,7 +139,7 @@ class InputParameters():
                     self.BdpltE = dict['E']
                     self.BdpltG = dict['G']
                     self.BdpltRho = dict['rho']
-                if dict['name'] == lss_material:
+                elif dict['name'] == lss_material:
                     self.ShftE = dict['E']
                     self.ShftG = dict['G']
                     self.ShftRho = dict['rho']
@@ -322,7 +322,10 @@ class Tower:
         
         #------------ MATERIAL --------------------#
         # Outfitting factor to multiply with tower material density
-        self.outfit_fac = tower_geom['internal_structure_2d_fem']['outfitting_factor']
+        try: 
+            self.outfit_fac = tower_geom['internal_structure_2d_fem']['outfitting_factor']
+        except: 
+            self.outfit_fac = 1
         
         # Assuming only same material for tower
         self.material_name = tower_geom['internal_structure_2d_fem']['layers'][0]['material']
