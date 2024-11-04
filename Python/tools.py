@@ -211,12 +211,13 @@ def find_folder_by_keyword(directory, keyword):
         # Check if there are multiple matching folders
         if len(matching_folders) > 1:
             print("Warning: Multiple folders contain the keyword. Choosing the first one found.")
-            for folder in matching_folders:
-                print(f"Matching folder: {folder}")
+            # for folder in matching_folders:
+            #     print(f"Matching folder: {folder}")
         
         # Return the first matching folder or None if no match is found
         if matching_folders:
             #print(f"Found and selected folder by keyword {keyword}: {matching_folders[0]} ")
+            print(f"Chosen folder: {matching_folders[0]} ")
             return matching_folders[0]
         else:
             print("No folder found with that keyword.")
@@ -243,13 +244,14 @@ def find_file_by_extension(directory, extension):
         
         # Check if there are multiple matching folders
         if len(matching_files) > 1:
-            print("Warning: Multiple folders have the extension. Choosing the first one found.")
-            for file in matching_files:
-                print(f"Matching file: {file}")
+            print("Warning: Multiple files have the extension. Choosing the first one found.")
+            # for file in matching_files:
+            #     print(f"Matching file: {file}")
         
         # Return the first matching folder or None if no match is found
         if matching_files:
             #print(f"Found and selected file by extension {extension}: {matching_files[0]} ")
+            print(f"Chosen file {matching_files[0]}")
             return matching_files[0]
         else:
             print("No file found with extension {extension}.")
