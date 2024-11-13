@@ -54,9 +54,19 @@ class BaseFiles:
         self.EdPath ='\\'.join((os.path.join(self.FstPath, edFile)).split('\\')[:-1])
         
         edTwrFile = self.Ed['TwrFile'][1:-1]
-        self.edBldFile1 = self.Ed['BldFile1'][1:-1]
-        self.edBldFile2 = self.Ed['BldFile2'][1:-1]
-        self.edBldFile3 = self.Ed['BldFile3'][1:-1]
+        try:
+            self.edBldFile1 = self.Ed['BldFile1'][1:-1]
+        except: 
+            self.edBldFile1 = self.Ed['BldFile(1)'][1:-1]
+        try: 
+            self.edBldFile2 = self.Ed['BldFile2'][1:-1]
+        except: 
+            self.edBldFile2 = self.Ed['BldFile(2)'][1:-1]
+        try: 
+            self.edBldFile3 = self.Ed['BldFile3'][1:-1]
+        except: 
+            self.edBldFile3 = self.Ed['BldFile(3)'][1:-1]
+            
         self.EdTw = FASTInputFile(os.path.join(self.EdPath, edTwrFile)) #ElastoDyn Tower-object
 
 
@@ -243,7 +253,7 @@ class InputParameters():
             self.GBMYZ          = float(drt_inp['GBMYZ'])
 
             # Shaft 
-            self.ShftProps      = dict(drt_inp['ShaftProps'])
+            self.ShftProps      = drt_inp['ShaftProps']
 
             # Main bearings
             self.Tow2MB1X       = float(drt_inp['Tow2MB1X'])
