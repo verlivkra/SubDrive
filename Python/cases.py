@@ -78,6 +78,10 @@ def floating(script_dir, tower_type, bedplate_type, shaft_type, mb_type, add_nac
     mymodel.buildShaft(shaft_type = shaft_type)
     mymodel.buildMainBearing(MB1or2 = 'MB1', mb_type = mb_type)
     mymodel.buildMainBearing(MB1or2 = 'MB2', mb_type = mb_type)
+
+    if mb_type == 'DTU10MW_mediumspeed': #TODO: Use other key here!
+        mymodel.buildGBox()
+
     mymodel.nacMassIner(add_nacelle_yaw_inertia = add_nacelle_yaw_inertia, add_yaw_br_mass = add_yaw_br_mass) 
     mymodel.outputs()
     mymodel.writeModel()
