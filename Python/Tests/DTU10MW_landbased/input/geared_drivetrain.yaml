@@ -57,6 +57,7 @@ Tow2MB1X: -4.13 #[m] Following the coordinate system of #TODO
 Kxx_MB1: 3.524500E+09   #[N/m]
 Kyy_MB1: 8.924400E+09   #[N/m]
 Kzz_MB1: 1.252E+10      #[N/m]
+Kaa_MB1: 0     #[Nm/rad]
 Kbb_MB1: 1.2108E+09     #[Nm/rad]
 Kgg_MB1: 8.6224E+08     #[Nm/rad]
 # Generator side bearing
@@ -65,6 +66,7 @@ Tow2MB2X: -2.61 #[m]
 Kxx_MB2: 3.3879E+09     #[N/m]
 Kyy_MB2: 5.3781E+09     #[N/m]
 Kzz_MB2: 8.7823E+09     #[N/m]
+Kaa_MB2: 0     #[Nm/rad]
 Kbb_MB2: 5.9224E+08     #[Nm/rad]
 Kgg_MB2: 3.6215E+08     #[Nm/rad]
 # Cosine matrix for bearings
