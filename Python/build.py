@@ -1400,7 +1400,13 @@ class Model:
             yawBrMass = self.baseF.Ed['YawBrMass']
         else: 
             yawBrMass = 0
-        self.ConcentratedMasses.append([self.twrTopJntID, yawBrMass, 0, 0, self.baseF.Ed['NacYIner']-JzzSum, 0, 0, 0, 0, 0, 0]) 
+
+        if add_yaw_br_mass:
+            self.ConcentratedMasses.append([self.twrTopJntID, yawBrMass, 0, 0, self.baseF.Ed['NacYIner']-JzzSum, 0, 0, 0, 0, 0, 0]) 
+        elif add_nacelle_yaw_inertia:
+            self.ConcentratedMasses.append([self.twrTopJntID, yawBrMass, 0, 0, self.baseF.Ed['NacYIner']-JzzSum, 0, 0, 0, 0, 0, 0]) 
+        else: 
+            pass
 
         self.ed['NacMass'] = 0 
         self.ed['NacYIner'] = 0 
@@ -1874,6 +1880,8 @@ class Model:
         self.ed['TowerBsHt'] = np.round(self.baseF.Ed['TowerHt']+Tow2ShftZ-smallValue*2,2)
         self.ed['PtfmRefzt'] = np.round(self.baseF.Ed['TowerHt']+Tow2ShftZ-smallValue*2,2)
         self.ed['PtfmCMzt'] = self.ed['PtfmRefzt']
+        self.ed['PtfmCMxt'] = 0
+        self.ed['PtfmCMyt'] = 0
 
         try: 
             self.ed['ShftGagL'] = np.round(-(self.ed['OverHang']-self.ShftTipCoord[0]/tools.cosd(-self.ed['ShftTilt'])),3)
@@ -1953,6 +1961,8 @@ class Model:
         self.ed['TowerBsHt'] = np.round(TowHt,4)
         self.ed['PtfmRefzt'] = np.round(TowHt,4)
         self.ed['PtfmCMzt'] = 0.0
+        self.ed['PtfmCMxt'] = 0.0
+        self.ed['PtfmCMyt'] = 0.0
 
         #----- Initial conditions -----#
         self.ed['PtfmSurge'] = 0.0
