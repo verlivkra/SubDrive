@@ -2042,7 +2042,7 @@ class Model:
 
         self.sd['OutCBModes']   =  1
         self.sd['OutCOSM']      = True
-        self.sd['OutAll']       = True #All nodal forces and moments are output
+        self.sd['OutAll']       = False #All nodal forces and moments are output if True
         self.sd['CBMod']        = True #Perform C-B-reduction?
         self.sd['SttcSolve']    = True 
         self.sd['GuyanDampMod'] =  self.inputs.GuyanDampMod #Use Rayleigh damping
