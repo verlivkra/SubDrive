@@ -26,6 +26,7 @@ if __name__ == '__main__':
     # predefined_case = 'IEA15MW_floating' # Any of 'DTU10MW_landbased', 'DTU10MW_monopile', 'IEA15MW_floating'
     
     predefined_case = 'IEA22MW_semi'
+    # predefined_case = 'IEA22MW_semi_towerOnly'
 
     # --- SCRIPT CONTENT -----------------------------------------------------#
 
@@ -83,8 +84,10 @@ if __name__ == '__main__':
         cases.floating(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA15MW_floating_towerOnly':
         cases.floating_towerOnly(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+    elif predefined_case == 'IEA22MW_semi_towerOnly':
+        cases.floating_towerOnly(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA22MW_semi':
-        cases.floating(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+        cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'shaft_only':
         cases.monopile_shaft_only(script_dir, 'tower_from_elastodyn', 'none', 'shaft_only', 'shaft_only', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
 
