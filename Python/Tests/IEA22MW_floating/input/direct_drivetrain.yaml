@@ -8,17 +8,17 @@ multiplier_G: 100
 #-------------Main bearings------------------
 # Rotor side bearing
 # Local coordinate system (x aligned with shaft, z pointing upwards)
-Kxx_MB1: 2.5E+09          #[N/m] Based on Schaeffler estimates
-Kyy_MB1: 3.6E+10          #[N/m] Based on Schaeffler estimates
-Kzz_MB1: 4.2E+10          #[N/m] Based on Schaeffler estimates
+Kxx_MB1: 1.04E09          #[N/m] Based on Schaeffler estimates
+Kyy_MB1: 3.96E10          #[N/m] Based on Schaeffler estimates
+Kzz_MB1: 3.96E10          #[N/m] Based on Schaeffler estimates
 Kaa_MB1: 5E+12          #[Nm/rad] Based on Schaeffler estimates
 Kbb_MB1: 0              #[Nm/rad]
 Kgg_MB1: 0              #[Nm/rad]
 # Generator side bearing
 # Local coordinate system (x aligned with shaft, z pointing upwards)
 Kxx_MB2: 0              #[N/m]
-Kyy_MB2: 2.9E+10          #[N/m] Based on Schaeffler estimates
-Kzz_MB2: 6.3E+10          #[N/m] Based on Schaeffler estimates
+Kyy_MB2: 3.28E10          #[N/m] Based on Schaeffler estimates
+Kzz_MB2: 3.28E10          #[N/m] Based on Schaeffler estimates
 Kaa_MB2: 5E+12      #[Nm/rad]
 Kbb_MB2: 0          #[Nm/rad]
 Kgg_MB2: 0          #[Nm/rad]
