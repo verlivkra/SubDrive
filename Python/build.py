@@ -1168,8 +1168,8 @@ class Model:
         # Spring
         self.SPropSetID += 1
         self.SpringProp.append([self.SPropSetID, 
-                                MBSpring['k11'], 0, 0, 0, 0, 0, #k12, k13, k14, k15, k16
-                                MBSpring['k22'], 0, 0, 0, 0, #k23, k24, k25, k26
+                                MBSpring['k11'], MBSpring['k12'], MBSpring['k13'], 0, 0, 0, #k12, k13, k14, k15, k16
+                                MBSpring['k22'], MBSpring['k23'], 0, 0, 0, #k23, k24, k25, k26
                                 MBSpring['k33'], 0, 0, 0, #k34, k35, k36
                                 MBSpring['k44'], 0, 0, #k45, k46
                                 MBSpring['k55'], 0, #k56
@@ -1214,8 +1214,8 @@ class Model:
         # Spring
         self.SPropSetID += 1
         self.SpringProp.append([self.SPropSetID, 
-                                MBSpring['k11'], 0, 0, 0, 0, 0, #k12, k13, k14, k15, k16
-                                MBSpring['k22'], 0, 0, 0, 0, #k23, k24, k25, k26
+                                MBSpring['k11'], MBSpring['k12'], MBSpring['k13'], 0, 0, 0, #k12, k13, k14, k15, k16
+                                MBSpring['k22'], MBSpring['k23'], 0, 0, 0, #k23, k24, k25, k26
                                 MBSpring['k33'], 0, 0, 0, #k34, k35, k36
                                 MBSpring['k44'], 0, 0, #k45, k46
                                 MBSpring['k55'], 0, #k56

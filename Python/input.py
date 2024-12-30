@@ -126,6 +126,8 @@ class InputParameters():
         if geom_from_wisdem:
             print('Collecting input from wisdem')
             wisdem_inp = tools.read_yaml(os.path.join(input_path, 'wisdem.yaml'))
+            
+            
             self.Lh1    = wisdem_inp['components']['nacelle']['drivetrain']['distance_hub_mb']      # Axial distance from hub flange to MB1
             self.L12    = wisdem_inp['components']['nacelle']['drivetrain']['distance_mb_mb']       # Axial distance from MB1 to MB2
             self.LGen   = wisdem_inp['components']['nacelle']['drivetrain']['generator_length']     # Axial length of generator measured from wall-centers
@@ -143,13 +145,13 @@ class InputParameters():
             
             # ----------- Material-----------------------------#
             bedplate_material   = wisdem_inp['components']['nacelle']['drivetrain']['bedplate_material']   
-            lss_material        = wisdem_inp['components']['nacelle']['drivetrain']['lss_material']        
+            lss_material        = wisdem_inp['components']['nacelle']['drivetrain']['lss_material']    
             for dict in wisdem_inp['materials']:
                 if dict['name'] == bedplate_material:
                     self.BdpltE = dict['E']
                     self.BdpltG = dict['G']
                     self.BdpltRho = dict['rho']
-                elif dict['name'] == lss_material:
+                if dict['name'] == lss_material:
                     self.ShftE = dict['E']
                     self.ShftG = dict['G']
                     self.ShftRho = dict['rho']
@@ -195,7 +197,10 @@ class InputParameters():
                 'k33': float(drt_inp['Kxx_MB1']), 
                 'k44': float(drt_inp['Kbb_MB1']), 
                 'k55': float(drt_inp['Kgg_MB1']), 
-                'k66': float(drt_inp['Kaa_MB1'])
+                'k66': float(drt_inp['Kaa_MB1']),
+                'k12': float(drt_inp['Kyz_MB1']), 
+                'k13': float(drt_inp['Kxy_MB1']), 
+                'k23': float(drt_inp['Kxz_MB1']), 
                 }
             self.MB2Spring = {
                 'k11': float(drt_inp['Kyy_MB2']), 
@@ -203,7 +208,10 @@ class InputParameters():
                 'k33': float(drt_inp['Kxx_MB2']), 
                 'k44': float(drt_inp['Kbb_MB2']), 
                 'k55': float(drt_inp['Kgg_MB2']), 
-                'k66': float(drt_inp['Kaa_MB2'])
+                'k66': float(drt_inp['Kaa_MB2']),
+                'k12': float(drt_inp['Kyz_MB2']), 
+                'k13': float(drt_inp['Kxy_MB2']), 
+                'k23': float(drt_inp['Kxz_MB2']), 
                 }
             self.MB_cosm        = list(drt_inp['MB_cosm'])
         
@@ -278,7 +286,10 @@ class InputParameters():
                 'k33': float(drt_inp['Kxx_MB1']), 
                 'k44': float(drt_inp['Kbb_MB1']), 
                 'k55': float(drt_inp['Kgg_MB1']), 
-                'k66': float(drt_inp['Kaa_MB1'])
+                'k66': float(drt_inp['Kaa_MB1']),
+                'k12': float(drt_inp['Kyz_MB1']), 
+                'k13': float(drt_inp['Kxy_MB1']), 
+                'k23': float(drt_inp['Kxz_MB1']), 
                 }
             self.MB2Spring = {
                 'k11': float(drt_inp['Kyy_MB2']), 
@@ -286,7 +297,10 @@ class InputParameters():
                 'k33': float(drt_inp['Kxx_MB2']), 
                 'k44': float(drt_inp['Kbb_MB2']), 
                 'k55': float(drt_inp['Kgg_MB2']), 
-                'k66': float(drt_inp['Kaa_MB2'])
+                'k66': float(drt_inp['Kaa_MB2']),
+                'k12': float(drt_inp['Kyz_MB2']), 
+                'k13': float(drt_inp['Kxy_MB2']), 
+                'k23': float(drt_inp['Kxz_MB2']), 
                 }
             self.MB_cosm        = list(drt_inp['MB_cosm'])
 
