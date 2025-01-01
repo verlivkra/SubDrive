@@ -78,14 +78,12 @@ if __name__ == '__main__':
         cases.landbased(script_dir, 'tower_from_elastodyn', 'straight_beam', 'DTU10MW_mediumspeed', 'DTU10MW_mediumspeed', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
     elif predefined_case == 'DTU10MW_monopile':
         cases.monopile(script_dir, 'tower_from_elastodyn', 'straight_beam', 'DTU10MW_mediumspeed', 'DTU10MW_mediumspeed', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
-    elif predefined_case == 'IEA15MW_floating_WDtower':
-        cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA15MW_floating':
-        cases.floating(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+        cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA15MW_floating_towerOnly':
-        cases.floating_towerOnly(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+        cases.floating_towerOnly(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA22MW_semi_towerOnly':
-        cases.floating_towerOnly(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+        cases.floating_towerOnly(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA22MW_semi':
         cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'shaft_only':
