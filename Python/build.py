@@ -2025,7 +2025,7 @@ class Model:
         self.assertions
 
         self.sd['FEMMod']   = 1 #Only Euler-Bernoulli beams supported so far
-        self.sd['NDiv']     = 1 
+        self.sd['NDiv']     = self.inputs.NDiv
         
         #Check that IDs are unique
         self.sd['Members']      = self.Members
