@@ -323,9 +323,6 @@ class Tower:
         
         """
         Makes SubDyn tower based on yaml-file from WISDEM. 
-        NDiv = 1 is used for the entire SubDyn-model.
-        If NDiv == 1 and different properties are specified at joint1 and joint2, SubDyn will interpolate the diameter and thickness (?)
-        between the joints, but will not allow material properties to change between the two joints
         
         yaml_path (list of dict):
             
