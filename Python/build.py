@@ -1533,11 +1533,7 @@ class Model:
     
     def outputs(self):
         """HydroDyn and SubDyn outputs"""
-        # #HydroDyn outputs - body motions and wave elevation
-        # if self.platformType == 'floating': 
-        #     self.hd['---------------------- OUTPUT'] = ['', '"Wave1Elev"               - Wave elevation at the platform reference point (0,  0)', 
-        #                                                 '"B1Surge, B1Sway, B1Heave, B1Roll, B1Pitch, B1Yaw" - Platform motion']
-            
+
         #Add tower top and tower base to member outputs
         self.memOutDict = {} # keep track of member outputs for post-processing -> written to JSON-file
         
@@ -1664,9 +1660,6 @@ class Model:
             print("WARNING when printing member outputs: 'SubDyn' object has no attribute 'ShftEndMemID'")
 
         self.sd['NMOutputs'] = len(self.sd['MemberOuts']) 
-        #TODO: I think this is updated
-        # if self.sd['NMOutputs']>9:
-        #     print('WARNING: Only 9 lines are allowd in the SDOutlist')
         
         #Update SDOutlist
         for i, dictionary in enumerate(self.sd.data):
@@ -1680,10 +1673,14 @@ class Model:
         print("--------self.memOutDict----------")
         print(self.memOutDict)
         sdoutlist = []
+        
+        last_node = self.inputs.NDiv+1
+
+        
         for key, data in self.memOutDict.items():
             mc = data['memCount'][0]
             tempdict = {
-                        'value': f'"M{mc}N1TDxss, M{mc}N1TDyss, M{mc}N1TDzss, M{mc}N2TDxss, M{mc}N2TDyss, M{mc}N2TDzss" \t\t - {key} displacements'         ,
+                        'value': f'"M{mc}N1TDxss, M{mc}N1TDyss, M{mc}N1TDzss, M{mc}N{last_node}TDxss, M{mc}N{last_node}TDyss, M{mc}N{last_node}TDzss" \t\t - {key} displacements'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1691,7 +1688,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
             tempdict = {
-                        'value': f'"M{mc}N1RDxe, M{mc}N1RDye, M{mc}N1RDze, M{mc}N2RDxe, M{mc}N2RDye, M{mc}N2RDze" \t\t - {key} rotations'         ,
+                        'value': f'"M{mc}N1RDxe, M{mc}N1RDye, M{mc}N1RDze, M{mc}N{last_node}RDxe, M{mc}N{last_node}RDye, M{mc}N{last_node}RDze" \t\t - {key} rotations'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1699,7 +1696,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
             tempdict = {
-                        'value': f'"M{mc}N1FKxe, M{mc}N1FKye, M{mc}N1FKze, M{mc}N2FKxe, M{mc}N2FKye, M{mc}N2FKze" \t\t - {key} static (elastic) forces'         ,
+                        'value': f'"M{mc}N1FKxe, M{mc}N1FKye, M{mc}N1FKze, M{mc}N{last_node}FKxe, M{mc}N{last_node}FKye, M{mc}N{last_node}FKze" \t\t - {key} static (elastic) forces'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1707,7 +1704,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
             tempdict = {
-                        'value': f'"M{mc}N1MKxe, M{mc}N1MKye, M{mc}N1MKze, M{mc}N2MKxe, M{mc}N2MKye, M{mc}N2MKze" \t\t - {key} static (elastic) moments'         ,
+                        'value': f'"M{mc}N1MKxe, M{mc}N1MKye, M{mc}N1MKze, M{mc}N{last_node}MKxe, M{mc}N{last_node}MKye, M{mc}N{last_node}MKze" \t\t - {key} static (elastic) moments'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1794,6 +1791,8 @@ class Model:
         "Write JSON-file labelling important subdyn-members. Useful for post-processing"
         memberLabels = {}
         print(self.memOutDict)
+        last_node = self.inputs.NDiv+1
+
         for part, content in self.memOutDict.items():
             memberLabels[part] = {}
             print(part)
@@ -1804,9 +1803,9 @@ class Model:
             elif part == 'PileBas':
                 memberLabels[part]['MemOut']      = ['M' + str(counts[0]) + 'N1']
             elif part == 'TwrTop':
-                memberLabels[part]['MemOut']      = ['M' + str(counts[0]) + 'N2']
+                memberLabels[part]['MemOut']      = ['M' + str(counts[0]) + f'N{last_node}']
             else:
-                memberLabels[part]['MemOut']      = list(np.array([['M' + str(count) + 'N1', 'M' + str(count) + 'N2'] for count in counts]).flatten())
+                memberLabels[part]['MemOut']      = list(np.array([['M' + str(count) + 'N1', 'M' + str(count) + f'N{last_node}'] for count in counts]).flatten())
 
             ID = self.memOutDict[part]['ID']
             if ID != []:
