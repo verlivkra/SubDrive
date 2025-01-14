@@ -83,6 +83,7 @@ class Model:
         file_manager = input.FilePaths(self.work_dir)
         # Reading user-defined input parameters
         self.inputs = input.InputParameters(self.work_dir)
+
         # Traditional OpenFAST-files - used as template and provides general input about the turbine
         self.baseF = input.BaseFiles(file_manager.file_paths)
         # Path to model files
@@ -1532,36 +1533,39 @@ class Model:
         self.iw.write(self.iwPath)
     
     def outputs(self):
-        """HydroDyn and SubDyn outputs"""
+        """SubDyn outputs"""
 
         #Add tower top and tower base to member outputs
         self.memOutDict = {} # keep track of member outputs for post-processing -> written to JSON-file
         
         self.sd['MemberOuts']   = []
         memOut_count = 0
+        self.end_node = self.inputs.NDiv + 1
+
         #--------Tower Base-----------------#
         if self.platformType == 'monopile':
             #--------Monopile Base Member--------#
-            self.sd['MemberOuts'].append(np.array([self.pileBsMemID, 2, 1, 2])) #Pile Base
+            self.sd['MemberOuts'].append(np.array([self.pileBsMemID, 2, 1, self.end_node])) #Pile Base
             memOut_count += 1
             self.memOutDict['PileBas'] = {}
             self.memOutDict['PileBas']['memCount'] = [memOut_count]
             self.memOutDict['PileBas']['ID'] = self.pileBsMemID
+
         elif self.platformType == 'floating':
             #--------Platform COG--------#
-            self.sd['MemberOuts'].append(np.array([self.ptfmCMJtID, 2, 1, 2])) #Pile Base
+            self.sd['MemberOuts'].append(np.array([self.ptfmCMJtID, 2, 1, self.end_node])) #Pile Base
             memOut_count += 1
             self.memOutDict['PlatformCOG'] = {}
             self.memOutDict['PlatformCOG']['memCount'] = [memOut_count]
             self.memOutDict['PlatformCOG']['ID'] = self.ptfmCMJtID
             #--------Platform reference point------------#
-            self.sd['MemberOuts'].append(np.array([self.ptfmRefZJtID, 2, 1, 2])) #Pile Base
+            self.sd['MemberOuts'].append(np.array([self.ptfmRefZJtID, 2, 1, self.end_node])) #Pile Base
             memOut_count += 1
             self.memOutDict['PlatformRefz'] = {}
             self.memOutDict['PlatformRefz']['memCount'] = [memOut_count]
             self.memOutDict['PlatformRefz']['ID'] = self.ptfmRefZJtID
             #--------Tower Base Member--------#
-            self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, 2])) #Tower base member with two nodes
+            self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, self.end_node])) #Tower base member with two nodes
             memOut_count += 1
             self.memOutDict['TwrBas'] = {}
             self.memOutDict['TwrBas']['memCount'] = [memOut_count]
@@ -1569,14 +1573,14 @@ class Model:
 
         else:
             #--------Tower Base Member--------#
-            self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, 2])) #Tower base member with two nodes
+            self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, self.end_node])) #Tower base member with two nodes
             memOut_count += 1
             self.memOutDict['TwrBas'] = {}
             self.memOutDict['TwrBas']['memCount'] = [memOut_count]
             self.memOutDict['TwrBas']['ID'] = self.twrBasMemID
 
         #--------Tower Top------------------#
-        self.sd['MemberOuts'].append(np.array([self.twrTopMemID, 2, 1, 2])) #Tower top member with two nodes
+        self.sd['MemberOuts'].append(np.array([self.twrTopMemID, 2, 1, self.end_node])) #Tower top member with two nodes
         memOut_count += 1
         self.memOutDict['TwrTop'] = {}
         self.memOutDict['TwrTop']['memCount'] = [memOut_count]
@@ -1584,7 +1588,7 @@ class Model:
 
         try: 
             #--------Shaft Tip------------------#
-            self.sd['MemberOuts'].append(np.array([self.MB1ShftMemID, 2, 1, 2])) #Shaft tip to main bearing connection along shaft
+            self.sd['MemberOuts'].append(np.array([self.MB1ShftMemID, 2, 1, self.end_node])) #Shaft tip to main bearing connection along shaft
             memOut_count += 1
             self.memOutDict['ShftTip'] = {}
             self.memOutDict['ShftTip']['memCount'] = [memOut_count]
@@ -1596,7 +1600,7 @@ class Model:
         except:
             try:
                 #--------Shaft Tip------------------#
-                self.sd['MemberOuts'].append(np.array([self.ShftTipRotSideMemID, 2, 1, 2])) #Shaft tip to main bearing connection along shaft
+                self.sd['MemberOuts'].append(np.array([self.ShftTipRotSideMemID, 2, 1, self.end_node])) #Shaft tip to main bearing connection along shaft
                 memOut_count += 1
                 self.memOutDict['ShftTip'] = {}
                 self.memOutDict['ShftTip']['memCount'] = [memOut_count]
@@ -1610,7 +1614,7 @@ class Model:
 
         try:
             #--------MB1------------------#
-            self.sd['MemberOuts'].append(np.array([self.MB1MemID, 2, 1, 2])) 
+            self.sd['MemberOuts'].append(np.array([self.MB1MemID, 2, 1, self.end_node])) 
             memOut_count += 1
             self.memOutDict['MB1'] = {}
             self.memOutDict['MB1']['memCount'] = [memOut_count]
@@ -1619,7 +1623,7 @@ class Model:
             print("WARNING when printing member outputs: 'SubDyn' object has no attribute 'MB1MemID'")
         try:
             #--------MB2------------------#
-            self.sd['MemberOuts'].append(np.array([self.MB2MemID, 2, 1, 2])) 
+            self.sd['MemberOuts'].append(np.array([self.MB2MemID, 2, 1, self.end_node])) 
             memOut_count += 1
             self.memOutDict['MB2'] = {}
             self.memOutDict['MB2']['memCount'] = [memOut_count]
@@ -1629,7 +1633,7 @@ class Model:
 
             #--------GB support------------------# #TODO: Add a try here??
         for i, ID in enumerate(self.GBSuppMemID):
-            self.sd['MemberOuts'].append(np.array([ID, 2, 1, 2])) #Tower top member with two nodes
+            self.sd['MemberOuts'].append(np.array([ID, 2, 1, self.end_node])) #Tower top member with two nodes
             memOut_count += 1
             self.memOutDict['GBSupp' + str(i+1)] = {}
             self.memOutDict['GBSupp' + str(i+1)]['memCount'] = [memOut_count]
@@ -1637,7 +1641,7 @@ class Model:
         
         #--------Shaft mid (MB1 to MB2) member------------------#
         try: 
-            self.sd['MemberOuts'].append(np.array([self.MB2ShftMemID, 2, 1, 2])) #Shaft tip to main bearing connection along shaft
+            self.sd['MemberOuts'].append(np.array([self.MB2ShftMemID, 2, 1, self.end_node])) #Shaft tip to main bearing connection along shaft
             memOut_count += 1
             try: 
                 self.memOutDict['Shaft']['memCount'].append(memOut_count) 
@@ -1649,7 +1653,7 @@ class Model:
         
         #--------Shaft end (MB2 to GBsupp) member------------------#
         try: 
-            self.sd['MemberOuts'].append(np.array([self.ShftEndMemID, 2, 1, 2])) #Shaft tip to main bearing connection along shaft
+            self.sd['MemberOuts'].append(np.array([self.ShftEndMemID, 2, 1, self.end_node])) #Shaft tip to main bearing connection along shaft
             memOut_count += 1
             try: 
                 self.memOutDict['Shaft']['memCount'].append(memOut_count) 
@@ -1673,14 +1677,11 @@ class Model:
         print("--------self.memOutDict----------")
         print(self.memOutDict)
         sdoutlist = []
-        
-        last_node = self.inputs.NDiv+1
-
-        
+   
         for key, data in self.memOutDict.items():
             mc = data['memCount'][0]
             tempdict = {
-                        'value': f'"M{mc}N1TDxss, M{mc}N1TDyss, M{mc}N1TDzss, M{mc}N{last_node}TDxss, M{mc}N{last_node}TDyss, M{mc}N{last_node}TDzss" \t\t - {key} displacements'         ,
+                        'value': f'"M{mc}N1TDxss, M{mc}N1TDyss, M{mc}N1TDzss, M{mc}N2TDxss, M{mc}N2TDyss, M{mc}N2TDzss" \t\t - {key} displacements'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1688,7 +1689,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
             tempdict = {
-                        'value': f'"M{mc}N1RDxe, M{mc}N1RDye, M{mc}N1RDze, M{mc}N{last_node}RDxe, M{mc}N{last_node}RDye, M{mc}N{last_node}RDze" \t\t - {key} rotations'         ,
+                        'value': f'"M{mc}N1RDxe, M{mc}N1RDye, M{mc}N1RDze, M{mc}N2RDxe, M{mc}N2RDye, M{mc}N2RDze" \t\t - {key} rotations'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1696,7 +1697,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
             tempdict = {
-                        'value': f'"M{mc}N1FKxe, M{mc}N1FKye, M{mc}N1FKze, M{mc}N{last_node}FKxe, M{mc}N{last_node}FKye, M{mc}N{last_node}FKze" \t\t - {key} static (elastic) forces'         ,
+                        'value': f'"M{mc}N1FKxe, M{mc}N1FKye, M{mc}N1FKze, M{mc}N2FKxe, M{mc}N2FKye, M{mc}N2FKze" \t\t - {key} static (elastic) forces'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1704,7 +1705,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
             tempdict = {
-                        'value': f'"M{mc}N1MKxe, M{mc}N1MKye, M{mc}N1MKze, M{mc}N{last_node}MKxe, M{mc}N{last_node}MKye, M{mc}N{last_node}MKze" \t\t - {key} static (elastic) moments'         ,
+                        'value': f'"M{mc}N1MKxe, M{mc}N1MKye, M{mc}N1MKze, M{mc}N2MKxe, M{mc}N2MKye, M{mc}N2MKze" \t\t - {key} static (elastic) moments'         ,
                         'label': '',
                         'isComment': True,
                         'descr': '',
@@ -1712,7 +1713,9 @@ class Model:
                         }
             sdoutlist.append(tempdict)
         
-        sdoutlist.append({'value': '"ReactFXss, ReactFYss, ReactFZss, ReactMXss, ReactMYss, ReactMZss" \t\t - Base moments and forces for bottom-fixed/landbased.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
+        if not self.floatingPlatform:
+            sdoutlist.append({'value': '"ReactFXss, ReactFYss, ReactFZss, ReactMXss, ReactMYss, ReactMZss" \t\t - Base moments and forces for bottom-fixed/landbased.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
+        
         sdoutlist.append({'value': '"IntfFXss, IntfFYss, IntfFZss, IntfMXss, IntfMYss, IntfMZss" \t\t - Interface joint moments and forces.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
         sdoutlist.append({'value': '"IntfTDXss, IntfTDYss, IntfTDZss, IntfRDXss, IntfRDYss , IntfRDZss" \t\t - Displacements and rotations of the TP reference point in global coordinate sys.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
         sdoutlist.append({'value': '"IntfTAXss, IntfTAYss, IntfTAZss, IntfRAXss, IntfRAYss, IntfRAZss" \t\t - Translational and rotational accelerations of the TP reference point (platform reference point) location in SS coordinate system', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
@@ -1791,7 +1794,6 @@ class Model:
         "Write JSON-file labelling important subdyn-members. Useful for post-processing"
         memberLabels = {}
         print(self.memOutDict)
-        last_node = self.inputs.NDiv+1
 
         for part, content in self.memOutDict.items():
             memberLabels[part] = {}
@@ -1803,9 +1805,9 @@ class Model:
             elif part == 'PileBas':
                 memberLabels[part]['MemOut']      = ['M' + str(counts[0]) + 'N1']
             elif part == 'TwrTop':
-                memberLabels[part]['MemOut']      = ['M' + str(counts[0]) + f'N{last_node}']
+                memberLabels[part]['MemOut']      = ['M' + str(counts[0]) + f'N2']
             else:
-                memberLabels[part]['MemOut']      = list(np.array([['M' + str(count) + 'N1', 'M' + str(count) + f'N{last_node}'] for count in counts]).flatten())
+                memberLabels[part]['MemOut']      = list(np.array([['M' + str(count) + 'N1', 'M' + str(count) + f'N2'] for count in counts]).flatten())
 
             ID = self.memOutDict[part]['ID']
             if ID != []:
