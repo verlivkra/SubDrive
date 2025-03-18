@@ -8,22 +8,22 @@ multiplier_G: 100
 #-------------Main bearings------------------
 # Rotor side bearing
 # Local coordinate system (x aligned with shaft, z pointing upwards)
-Kxx_MB1: 6.31E+08          #[N/m] Based on Schaeffler estimates
-Kyy_MB1: 3.11E+10          #[N/m] Based on Schaeffler estimates
-Kzz_MB1: 3.11E+10          #[N/m] Based on Schaeffler estimates
-Kxy_MB1: 1.59E9           # [Nm/m] or [N/rad]
-Kxz_MB1: 1.59E9           # [Nm/m] or [N/rad]
+Kxx_MB1: 0                 #[N/m] Based on Schaeffler estimates
+Kyy_MB1: 2.09E10           #[N/m] Based on Schaeffler estimates
+Kzz_MB1: 2.09E10           #[N/m] Based on Schaeffler estimates
+Kxy_MB1: 0                 # [Nm/m] or [N/rad]
+Kxz_MB1: 0                 # [Nm/m] or [N/rad]
 Kyz_MB1: 0              # [Nm/m] or [N/rad]
 Kaa_MB1: 5E+12          #[Nm/rad] Should be high
 Kbb_MB1: 0              #[Nm/rad]
 Kgg_MB1: 0              #[Nm/rad]
 # Generator side bearing
 # Local coordinate system (x aligned with shaft, z pointing upwards)
-Kxx_MB2: 0              #[N/m]
-Kyy_MB2: 1.96E+10          #[N/m] Based on Schaeffler estimates
-Kzz_MB2: 1.96E+10          #[N/m] Based on Schaeffler estimates
-Kxy_MB2: 0              # [Nm/m] or [N/rad]
-Kxz_MB2: 0              # [Nm/m] or [N/rad]
+Kxx_MB2: 1.85E8           #[N/m]
+Kyy_MB2: 8.41E10          #[N/m] Based on Schaeffler estimates
+Kzz_MB2: 8.41E10          #[N/m] Based on Schaeffler estimates
+Kxy_MB2: 1.05E9         # [Nm/m] or [N/rad]
+Kxz_MB2: 1.05E9         # [Nm/m] or [N/rad]
 Kyz_MB2: 0              # [Nm/m] or [N/rad]
 Kaa_MB2: 5E+12      #[Nm/rad] Should be high
 Kbb_MB2: 0          #[Nm/rad]
