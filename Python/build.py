@@ -1545,7 +1545,7 @@ class Model:
         #--------Tower Base-----------------#
         if self.platformType == 'monopile':
             #--------Monopile Base Member--------#
-            self.sd['MemberOuts'].append(np.array([self.pileBsMemID, 2, 1, self.end_node])) #Pile Base
+            self.sd['MemberOuts'].append(np.array([self.pileBsMemID, 2, 1, 2])) #Pile Base
             memOut_count += 1
             self.memOutDict['PileBas'] = {}
             self.memOutDict['PileBas']['memCount'] = [memOut_count]
@@ -1553,13 +1553,13 @@ class Model:
 
         elif self.platformType == 'floating':
             #--------Platform COG--------#
-            self.sd['MemberOuts'].append(np.array([self.ptfmCMJtID, 2, 1, self.end_node])) #Pile Base
+            self.sd['MemberOuts'].append(np.array([self.ptfmCMJtID, 2, 1, 2])) #Platform COG
             memOut_count += 1
             self.memOutDict['PlatformCOG'] = {}
             self.memOutDict['PlatformCOG']['memCount'] = [memOut_count]
             self.memOutDict['PlatformCOG']['ID'] = self.ptfmCMJtID
             #--------Platform reference point------------#
-            self.sd['MemberOuts'].append(np.array([self.ptfmRefZJtID, 2, 1, self.end_node])) #Pile Base
+            self.sd['MemberOuts'].append(np.array([self.ptfmRefZJtID, 2, 1, 2])) #Pile Base
             memOut_count += 1
             self.memOutDict['PlatformRefz'] = {}
             self.memOutDict['PlatformRefz']['memCount'] = [memOut_count]
@@ -1614,7 +1614,7 @@ class Model:
 
         try:
             #--------MB1------------------#
-            self.sd['MemberOuts'].append(np.array([self.MB1MemID, 2, 1, self.end_node])) 
+            self.sd['MemberOuts'].append(np.array([self.MB1MemID, 2, 1, 2])) 
             memOut_count += 1
             self.memOutDict['MB1'] = {}
             self.memOutDict['MB1']['memCount'] = [memOut_count]
@@ -1623,7 +1623,7 @@ class Model:
             print("WARNING when printing member outputs: 'SubDyn' object has no attribute 'MB1MemID'")
         try:
             #--------MB2------------------#
-            self.sd['MemberOuts'].append(np.array([self.MB2MemID, 2, 1, self.end_node])) 
+            self.sd['MemberOuts'].append(np.array([self.MB2MemID, 2, 1, 2])) 
             memOut_count += 1
             self.memOutDict['MB2'] = {}
             self.memOutDict['MB2']['memCount'] = [memOut_count]
@@ -1633,7 +1633,7 @@ class Model:
 
             #--------GB support------------------# #TODO: Add a try here??
         for i, ID in enumerate(self.GBSuppMemID):
-            self.sd['MemberOuts'].append(np.array([ID, 2, 1, self.end_node])) #Tower top member with two nodes
+            self.sd['MemberOuts'].append(np.array([ID, 2, 1, 2])) #Tower top member with two nodes
             memOut_count += 1
             self.memOutDict['GBSupp' + str(i+1)] = {}
             self.memOutDict['GBSupp' + str(i+1)]['memCount'] = [memOut_count]
