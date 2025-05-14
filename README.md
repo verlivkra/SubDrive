@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # OpenFAST-drivetrain-modeling
+=======
+# SubDrive: OpenFAST-drivetrain-modeling
+>>>>>>> a202f980469416840f2484b6e3ea3ede3095f9c5
 A repository containing a description on how to make a coupled turbine-drivetrain model in OpenFAST, and two corresponding models of the DTU 10 MW RWT (monopile and land-based). 
 
 ## OpenFAST version and compilation
