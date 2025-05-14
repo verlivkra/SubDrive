@@ -16,31 +16,8 @@ from openfast_toolbox.io  import FASTInputFile
 import tools
 
 # --- FUNCTION DEFINITIONS ---------------------------------------------------#
-# def example_function(arg1, arg2):
-#    """
-#    Example of docstring of a function.
-#
-#    Arguments:
-#        arg1 (float, int):
-#            Argument that can be of either float or integer type.
-#        arg2 (list of str):
-#            Argument that is a list of strings.
-#    Returns:
-#        return_value (float):
-#            Return value of type float.
-#    """
-#
-#    pass
 
 
-# class Input():
-#     # self.origED -> TODO: I want the base-files to be available for the Tower class for instnace - nested class?
-#     # class tower
-#     # class direct drive wisdem
-
-def generate_yaml(): 
-
-    return
 
 class FilePaths:
     def __init__(self, 
@@ -77,10 +54,21 @@ class BaseFiles:
         self.EdPath ='\\'.join((os.path.join(self.FstPath, edFile)).split('\\')[:-1])
         
         edTwrFile = self.Ed['TwrFile'][1:-1]
-        self.edBldFile1 = self.Ed['BldFile1'][1:-1]
-        self.edBldFile2 = self.Ed['BldFile2'][1:-1]
-        self.edBldFile3 = self.Ed['BldFile3'][1:-1]
+        try:
+            self.edBldFile1 = self.Ed['BldFile1'][1:-1]
+        except: 
+            self.edBldFile1 = self.Ed['BldFile(1)'][1:-1]
+        try: 
+            self.edBldFile2 = self.Ed['BldFile2'][1:-1]
+        except: 
+            self.edBldFile2 = self.Ed['BldFile(2)'][1:-1]
+        try: 
+            self.edBldFile3 = self.Ed['BldFile3'][1:-1]
+        except: 
+            self.edBldFile3 = self.Ed['BldFile(3)'][1:-1]
+            
         self.EdTw = FASTInputFile(os.path.join(self.EdPath, edTwrFile)) #ElastoDyn Tower-object
+
 
 class MainFiles:
     """File-name and path to .fst-file making up the OpenFAST model with SubDyn-tower and drivetrain"""
@@ -98,7 +86,7 @@ class InputParameters():
         gen_inp = tools.read_yaml(os.path.join(input_path, 'input_parameters.yaml'))
         #Drivetrain input
         drt_file = tools.find_file_by_extension(input_path, '_drivetrain.yaml')
-        # TODO: ADD Try except/Read yaml-file if wisdem - Men må ha e.g. lagerparametere fra input-fil uansett!
+
         drt_inp = tools.read_yaml(os.path.join(input_path, drt_file))
 
         # Time step and simulation duration
@@ -113,14 +101,21 @@ class InputParameters():
         self.DTTorDmp   = float(gen_inp['DTTorDmp'])
         self.CBDamp = list(gen_inp['CBDamp'])
         self.NModes = int(gen_inp['NModes'])
+        self.NDiv = int(gen_inp['NDiv'])
         system_1twr_freq = float(gen_inp['system_1twr_freq']) if gen_inp['system_1twr_freq'] != 'None' else None
         system_1twr_damp = float(gen_inp['system_1twr_damp']) if gen_inp['system_1twr_damp'] != 'None'else None
 
         if gen_inp['RayleighCoffs'] == 'Calculate':
             beta = SD_beta_from_ED_damp(system_1twr_freq, system_1twr_damp)
             self.RayleighCoffs = [0, beta] 
+            self.GuyanDampMod = 1
+        elif gen_inp['RayleighCoffs'] == False:
+            self.RayleighCoffs = [0, 0] 
+            self.GuyanDampMod = 0
         else:
             self.RayleighCoffs = gen_inp['RayleighCoffs']
+            self.GuyanDampMod = 1
+
         
         # Tower
         self.TowerE     = float(gen_inp['TowerE']) if gen_inp['TowerE'] != 'None' else None
@@ -132,8 +127,10 @@ class InputParameters():
         if geom_from_wisdem:
             print('Collecting input from wisdem')
             wisdem_inp = tools.read_yaml(os.path.join(input_path, 'wisdem.yaml'))
-            self.Lh1    = wisdem_inp['components']['nacelle']['drivetrain']['distance_hub2mb']      # Axial distance from hub flange to MB1
-            self.L12    = wisdem_inp['components']['nacelle']['drivetrain']['distance_mb2mb']       # Axial distance from MB1 to MB2
+            
+            
+            self.Lh1    = wisdem_inp['components']['nacelle']['drivetrain']['distance_hub_mb']      # Axial distance from hub flange to MB1
+            self.L12    = wisdem_inp['components']['nacelle']['drivetrain']['distance_mb_mb']       # Axial distance from MB1 to MB2
             self.LGen   = wisdem_inp['components']['nacelle']['drivetrain']['generator_length']     # Axial length of generator measured from wall-centers
             self.HhttZ  = wisdem_inp['components']['nacelle']['drivetrain']['distance_tt_hub']      # Hub to tt Z
             self.Dtt    = wisdem_inp['components']['tower']['outer_shape_bem']['outer_diameter']['values'][-1]
@@ -149,7 +146,7 @@ class InputParameters():
             
             # ----------- Material-----------------------------#
             bedplate_material   = wisdem_inp['components']['nacelle']['drivetrain']['bedplate_material']   
-            lss_material        = wisdem_inp['components']['nacelle']['drivetrain']['lss_material']        
+            lss_material        = wisdem_inp['components']['nacelle']['drivetrain']['lss_material']    
             for dict in wisdem_inp['materials']:
                 if dict['name'] == bedplate_material:
                     self.BdpltE = dict['E']
@@ -171,6 +168,11 @@ class InputParameters():
             self.BdpltT = wisdem_inp['components']['nacelle']['drivetrain']['bedplate_wall_thickness']['values']
 
             # From input-file:
+            self.multiplierG    = float(drt_inp['multiplier_G']) # Increase torsional stiffness of drivetrain - should only be captured by 
+            self.BdpltG = self.multiplierG*self.BdpltG
+            self.ShftG = self.multiplierG*self.ShftG
+            self.NoseG = self.multiplierG*self.NoseG
+
             self.GenStatMass    = float(drt_inp['GenStatMass'])
             self.GenStatMXX     = float(drt_inp['GenStatMXX'])
             self.GenStatMYY     = float(drt_inp['GenStatMYY'])
@@ -179,13 +181,51 @@ class InputParameters():
             self.Tow2GenStatY   = float(drt_inp['Tow2GenStatY'])
             self.Tow2GenStatZ   = float(drt_inp['Tow2GenStatZ'])
 
-            self.GenRotMass    = float(drt_inp['GenStatMass'])
-            self.GenRotMXX     = float(drt_inp['GenStatMXX'])
-            self.GenRotMYY     = float(drt_inp['GenStatMYY'])
-            self.GenRotMZZ     = float(drt_inp['GenStatMZZ'])
-            self.Tow2GenRotX   = float(drt_inp['Tow2GenStatX'])
-            self.Tow2GenRotY   = float(drt_inp['Tow2GenStatY'])
-            self.Tow2GenRotZ   = float(drt_inp['Tow2GenStatZ'])
+            self.GenRotMass    = float(drt_inp['GenRotMass'])
+            self.GenRotMXX     = float(drt_inp['GenRotMXX'])
+            self.GenRotMYY     = float(drt_inp['GenRotMYY'])
+            self.GenRotMZZ     = float(drt_inp['GenRotMZZ'])
+            self.Tow2GenRotX   = float(drt_inp['Tow2GenRotX'])
+            self.Tow2GenRotY   = float(drt_inp['Tow2GenRotY'])
+            self.Tow2GenRotZ   = float(drt_inp['Tow2GenRotZ'])
+            
+            self.BdpltMassTow2Mid   = float(drt_inp['BdpltMassTow2Mid'])
+            self.BdpltMassMid2Nose  = float(drt_inp['BdpltMassMid2Nose'])
+            # -------- Main bearing stiffness and cosine matrix must be specified by user even though other drivetrain input comes from wisdem -------------
+            self.MB1Spring = {
+                'k11': float(drt_inp['Kyy_MB1']), 
+                'k22': float(drt_inp['Kzz_MB1']), 
+                'k33': float(drt_inp['Kxx_MB1']), 
+                'k44': float(drt_inp['Kbb_MB1']), 
+                'k55': float(drt_inp['Kgg_MB1']), 
+                'k66': float(drt_inp['Kaa_MB1']),
+                'k12': float(drt_inp['Kyz_MB1']), 
+                'k13': float(drt_inp['Kxy_MB1']), 
+                'k23': float(drt_inp['Kxz_MB1']), 
+                }
+            self.MB2Spring = {
+                'k11': float(drt_inp['Kyy_MB2']), 
+                'k22': float(drt_inp['Kzz_MB2']), 
+                'k33': float(drt_inp['Kxx_MB2']), 
+                'k44': float(drt_inp['Kbb_MB2']), 
+                'k55': float(drt_inp['Kgg_MB2']), 
+                'k66': float(drt_inp['Kaa_MB2']),
+                'k12': float(drt_inp['Kyz_MB2']), 
+                'k13': float(drt_inp['Kxy_MB2']), 
+                'k23': float(drt_inp['Kxz_MB2']), 
+                }
+            self.MB_cosm        = list(drt_inp['MB_cosm'])
+        
+        elif drt_file == 'simple_drivetrain.yaml':
+            # Shaft 
+            ShftProps       = drt_inp['ShaftProps']
+            self.ShftE      = float(ShftProps['E'])
+            self.ShftG      = float(ShftProps['G'])
+            self.ShftRho    = float(ShftProps['rho'])
+            self.ShftOD     = float(ShftProps['D_o']) 
+            self.ShftT      = float(ShftProps['t'])
+            self.ShftL      = float(ShftProps['L']) 
+            self.Tow2ShftXGenSide = float(drt_inp['Tow2ShftXGenSide'])
 
         else:
             # Bedplate
@@ -222,7 +262,7 @@ class InputParameters():
             self.GBMYZ          = float(drt_inp['GBMYZ'])
 
             # Shaft 
-            self.ShftProps      = dict(drt_inp['ShaftProps'])
+            self.ShftProps      = drt_inp['ShaftProps']
 
             # Main bearings
             self.Tow2MB1X       = float(drt_inp['Tow2MB1X'])
@@ -241,24 +281,29 @@ class InputParameters():
             }
             self.GB_cosm        = list(drt_inp['GB_cosm'])
 
-        # -------- Main bearing stiffness and cosine matrix must be specified by user even though other drivetrain input comes from wisdem -------------
-        self.MB1Spring = {
-            'k11': float(drt_inp['Kyy_MB1']), 
-            'k22': float(drt_inp['Kzz_MB1']), 
-            'k33': float(drt_inp['Kxx_MB1']), 
-            'k44': float(drt_inp['Kbb_MB1']), 
-            'k55': float(drt_inp['Kgg_MB1']), 
-            'k66': 0
-            }
-        self.MB2Spring = {
-            'k11': float(drt_inp['Kyy_MB2']), 
-            'k22': float(drt_inp['Kzz_MB2']), 
-            'k33': float(drt_inp['Kxx_MB2']), 
-            'k44': float(drt_inp['Kbb_MB2']), 
-            'k55': float(drt_inp['Kgg_MB2']), 
-            'k66': 0
-            }
-        self.MB_cosm        = list(drt_inp['MB_cosm'])
+            self.MB1Spring = {
+                'k11': float(drt_inp['Kyy_MB1']), 
+                'k22': float(drt_inp['Kzz_MB1']), 
+                'k33': float(drt_inp['Kxx_MB1']), 
+                'k44': float(drt_inp['Kbb_MB1']), 
+                'k55': float(drt_inp['Kgg_MB1']), 
+                'k66': float(drt_inp['Kaa_MB1']),
+                'k12': float(drt_inp['Kyz_MB1']), 
+                'k13': float(drt_inp['Kxy_MB1']), 
+                'k23': float(drt_inp['Kxz_MB1']), 
+                }
+            self.MB2Spring = {
+                'k11': float(drt_inp['Kyy_MB2']), 
+                'k22': float(drt_inp['Kzz_MB2']), 
+                'k33': float(drt_inp['Kxx_MB2']), 
+                'k44': float(drt_inp['Kbb_MB2']), 
+                'k55': float(drt_inp['Kgg_MB2']), 
+                'k66': float(drt_inp['Kaa_MB2']),
+                'k12': float(drt_inp['Kyz_MB2']), 
+                'k13': float(drt_inp['Kxy_MB2']), 
+                'k23': float(drt_inp['Kxz_MB2']), 
+                }
+            self.MB_cosm        = list(drt_inp['MB_cosm'])
 
         
 class Tower:
@@ -278,9 +323,6 @@ class Tower:
         
         """
         Makes SubDyn tower based on yaml-file from WISDEM. 
-        NDiv = 1 is used for the entire SubDyn-model.
-        If NDiv == 1 and different properties are specified at joint1 and joint2, SubDyn will interpolate the diameter and thickness (?)
-        between the joints, but will not allow material properties to change between the two joints
         
         yaml_path (list of dict):
             
@@ -302,7 +344,10 @@ class Tower:
         
         #------------ MATERIAL --------------------#
         # Outfitting factor to multiply with tower material density
-        self.outfit_fac = tower_geom['internal_structure_2d_fem']['outfitting_factor']
+        try: 
+            self.outfit_fac = tower_geom['internal_structure_2d_fem']['outfitting_factor']
+        except: 
+            self.outfit_fac = 1
         
         # Assuming only same material for tower
         self.material_name = tower_geom['internal_structure_2d_fem']['layers'][0]['material']
@@ -605,84 +650,6 @@ def calculateShaftBeamRho(ShaftProps):
     return ShaftProps
 
 
-def wisdem_drivetrain_DD(yaml_path = r'C:\OpenFAST_Workspace\IEA-15-240-RWT\WT_Ontology\\IEA-15-240-RWT_VolturnUS-S.yaml'):
- 
-    # ----Geometry --------------------------------------# 
-
-    OverHangX = OverHang*tools.cosd(ShftTilt)
-    # The following calculations are according to: https://wisdem.readthedocs.io/en/master/wisdem/drivetrainse/layout.html
-    Lgr =  Lh1/2 # Hub flange to generator rotor side According to WISDEM (reported values don't make sense)
-    Lgs = LGen - Lgr - L12 # Generator stator to bedplate flange According to WISDEM (reported values don't make sense)
-    L2n = 2*Lgs # MB2 to bedplate flange According to WISDEM (reported values don't make sense)
-    Llss = L12 + Lh1 # Length of low speed shaft
-    # Lnose = L12 + L2n # Length of nose WISDEM calculations
-    Lnose = Llss # Length of nose Report
-
-    # L_drive = Overhang - HubRad - L_bedplate/cosd(ShftTilt) # Length from bedplate interface to hub interface (Overhang - hubR - bedplate)
-    L_drive = Lh1 + L12 + L2n # Length from bedplate interface to hub interface (Overhang - hubR - bedplate)
-
-    H_bedplate = HhttZ - (L_drive + HubRad)*tools.sind(ShftTilt) # H_bedplate = 4.875
-
-    L_bedplate = (H_bedplate - Tow2ShftZ)/tools.tand(ShftTilt) # L_bedplate = 5 m, X-direction not axial
-
-    # Bearing positions
-    Tow2MB1X = -(L_bedplate + L2n*tools.cosd(ShftTilt))
-    Tow2MB2X = -(L_bedplate + L2n*tools.cosd(ShftTilt) + L12*tools.cosd(ShftTilt))
-
-    drivetrain_props = {
-        'Tow2MB1X': Tow2MB1X,
-        'Tow2MB2X': Tow2MB2X,
-    }
-
-    turbine_props = {
-        'Tow2ShftZ': Tow2ShftZ,
-        'ShftTilt': -ShftTilt,
-        'OverHang': OverHang,
-        'OverHangX': OverHangX,
-        'TowerHt': TowerHt,
-        'TowerBsHt': TowerBsHt
-    }
-
-    BedpltJoints = {
-        'Stator':  {'xyz': [L_bedplate + Lgs*tools.cosd(ShftTilt), 
-                            0, 
-                            TowerHt + H_bedplate + Lgs*tools.sind(ShftTilt)]}, 
-                    # 'Mass': {'JMass': 40000, 'JMXX': 6.076899, 'JMYY': 800, 'JMZZ': 793.923, 'JMXY': 0, 'JMXZ': 69.46, 'JMYZ': 0, 
-                    #                                         'MCGX': 0, 'MCGY': 0, 'MCGZ': 0}},
-        'MB1': {'xyz': [L_bedplate + (L2n + L12)*tools.cosd(ShftTilt), 
-                        0, 
-                        TowerHt + H_bedplate + (L2n + L12)*tools.sind(ShftTilt)]}, 
-        'MB2': {'xyz': [L_bedplate + L2n*tools.cosd(ShftTilt), 
-                        0, 
-                        TowerHt + H_bedplate + L2n*tools.sind(ShftTilt)]}, 
-        'Bedplt_RotSide': {'xyz': [L_bedplate, 
-                        0, 
-                        TowerHt + H_bedplate]}, # Equal to nose tower side
-        'Nose_RotSide': {'xyz': [L_bedplate + Lnose*tools.cosd(ShftTilt), 
-                        0, 
-                        TowerHt + H_bedplate + Lnose*tools.sind(ShftTilt)]}, 
-                        # TODO: Taking the average for now - update!
-        'Bedplt_Mid': {'xyz': [(L_bedplate + L_bedplate + Lnose*tools.cosd(ShftTilt))/2, 
-                               0, 
-                               (TowerHt + H_bedplate + TowerHt + H_bedplate + Lnose*tools.sind(ShftTilt))/2]}, 
-        }
-    
-    # BedpltMaterial: {
-
-    
-    print(BedpltJoints)
-    ShftJoints = {
-                'ShftStrt': {'xyz': [Tow2ShftUpstrX, 0, 
-                                np.abs(Tow2ShftUpstrX*tand(ShftTilt))+Tow2ShftZ+TowerHeight]},
-                'MB1': {'xyz': [Tow2MB1X, 0, 
-                                np.abs(Tow2MB1X*tand(ShftTilt))+Tow2ShftZ+TowerHeight]},
-                'MB2': {'xyz': [Tow2MB2X, 0, 
-                                np.abs(Tow2MB2X*tand(ShftTilt))+Tow2ShftZ+TowerHeight]},
-                'ShftEnd': {'xyz': [Tow2ShftDwnstrX, 0, 
-                                np.abs(Tow2ShftDwnstrX*sind(ShftTilt))+Tow2ShftZ+TowerHeight]},
-    }  
-
-    return drivetrain_props, turbine_props
 
 # --- MAIN SCRIPT STARTS BELOW: ----------------------------------------------#
 if __name__ == '__main__':
@@ -692,4 +659,4 @@ if __name__ == '__main__':
     # --- SCRIPT CONTENT -----------------------------------------------------#
 
     # Tower(tower_type = 'tower_from_wisdem', wisdem_yaml_path='C:\myGitContributions\OpenFAST-drivetrain-modeling\Python\Tests\IEA15MW_umaine\IEA-15-240-RWT_VolturnUS-S.yaml')
-    geometry_IEA15MW()
+    print('hei')

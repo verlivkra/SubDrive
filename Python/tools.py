@@ -54,23 +54,15 @@ class TaperedPipe():
         # NB! TTZ only used for testing
         self.x1, self.y1, self.z1 = coord1[0], coord1[1], coord1[2] - TTZ 
         if TTZ != 0:
-            print("WARNING! REMOVE TOWER HEIGHT FROM TAPEREDPIPE CALCULATION ONLY FOR CHECKING!")
+            print("WARNING! REMOVE TOWER HEIGHT FROM TAPEREDPIPE CALCULATION. THIS IS ONLY FOR CHECKING!")
         self.x2, self.y2, self.z2 = coord2[0], coord2[1], coord2[2] - TTZ
         
-        print("self.x1, self.y1, self.z1")
-        print(self.x1, self.y1, self.z1)
-        print("self.x2, self.y2, self.z2")
-        print(self.x2, self.y2, self.z2)
         self.L = np.sqrt((self.x1-self.x2)**2+(self.y1-self.y2)**2+(self.z1-self.z2)**2)
-        print("self.L")
-        print(self.L)
         self.rho = rho
         self.OD1 = OD1
         self.OD2 = OD2
         self.t1  = t1
         self.t2  = t2
-        print("OD1")
-        print(OD1)
 
         self.ID1 = self.OD1 - 2*self.t1
         self.ID2 = self.OD2 - 2*self.t2
@@ -79,9 +71,6 @@ class TaperedPipe():
         self.volume()
         self.calc_mass()
         
-        print("self.mass")
-        print(self.mass)
-
         self.vector()
         
         self.local_COM()
@@ -112,27 +101,19 @@ class TaperedPipe():
     def local_COM(self):
         self.CMx_local = (self.A1 * self.L**2 / 2 + self.L**2 * (self.A2 - self.A1) / 3) / (self.A1 * self.L + self.L * (self.A2 - self.A1) / 2) # Along longitudinal axis of member
         
-        print("self.CMx_local")
-        print(self.CMx_local)
 
     def local_COM_midlength(self):
         self.CMx_local_midlength = self.L/2
-        print("self.CMx_local_midlength")
-        print(self.CMx_local_midlength)
 
     def global_COM(self):
         self.CMx = self.x1 + self.CMx_local * self.v_norm[0]
         self.CMy = self.y1 + self.CMx_local * self.v_norm[1]
         self.CMz = self.z1 + self.CMx_local * self.v_norm[2]
-        print("self.CMx, self.CMy, self.CMz")
-        print(self.CMx, self.CMy, self.CMz)
     
     def global_COM_midlength(self):
         self.CMx_global_midlength = self.x1 + self.CMx_local_midlength * self.v_norm[0]
         self.CMy_global_midlength = self.y1 + self.CMx_local_midlength * self.v_norm[1]
         self.CMz_global_midlength = self.z1 + self.CMx_local_midlength * self.v_norm[2]
-        print("self.CMx_global_midlength, self.CMy_global_midlength, self.CMz_global_midlength")
-        print(self.CMx_global_midlength, self.CMy_global_midlength, self.CMz_global_midlength)
 
     def MoI_locCoord_midLength(self):
         """Mass moment of inertia in local coordinate system relative to mid length"""
@@ -170,8 +151,6 @@ class TaperedPipe():
         
         # Correct local_y to ensure a right-handed coordinate system
         local_y = np.cross(local_z, local_x)
-        print("local_x, local_y, local_z")
-        print(local_x, local_y, local_z)
 
         # Assemble rotation matrix from local to global
         R = np.vstack([local_x, local_y, local_z]).T
@@ -184,16 +163,16 @@ class TaperedPipe():
         self.I_global_midlength = R @ (self.I_local_midlength) @ R.T   # CM midlength
         self.I_global_tapered = self.I_global_midlength + I_steiner     # Relative to CM for tapered beam 
 
-        print("Rotation Matrix (Local to Global):")
-        print(R)
-        print("Local Moments of Inertia about the Local Origin (midlength):")
-        print(self.I_local_midlength)
+        # print("Rotation Matrix (Local to Global):")
+        # print(R)
+        # print("Local Moments of Inertia about the Local Origin (midlength):")
+        # print(self.I_local_midlength)
 
-        print("Global Moments of Inertia about the local Origin (midlength):")
-        print(self.I_global_midlength)
+        # print("Global Moments of Inertia about the local Origin (midlength):")
+        # print(self.I_global_midlength)
 
-        print("Global Moments of Inertia about the center of mass of tapered pipe, but calculated assuming straight pipe:")
-        print(self.I_global_tapered)
+        # print("Global Moments of Inertia about the center of mass of tapered pipe, but calculated assuming straight pipe:")
+        # print(self.I_global_tapered)
         self.JMXX = np.diag(self.I_global_tapered)[0]
         self.JMYY = np.diag(self.I_global_tapered)[1]
         self.JMZZ = np.diag(self.I_global_tapered)[2]
@@ -232,12 +211,13 @@ def find_folder_by_keyword(directory, keyword):
         # Check if there are multiple matching folders
         if len(matching_folders) > 1:
             print("Warning: Multiple folders contain the keyword. Choosing the first one found.")
-            for folder in matching_folders:
-                print(f"Matching folder: {folder}")
+            # for folder in matching_folders:
+            #     print(f"Matching folder: {folder}")
         
         # Return the first matching folder or None if no match is found
         if matching_folders:
             #print(f"Found and selected folder by keyword {keyword}: {matching_folders[0]} ")
+            print(f"Chosen folder: {matching_folders[0]} ")
             return matching_folders[0]
         else:
             print("No folder found with that keyword.")
@@ -264,13 +244,14 @@ def find_file_by_extension(directory, extension):
         
         # Check if there are multiple matching folders
         if len(matching_files) > 1:
-            print("Warning: Multiple folders have the extension. Choosing the first one found.")
-            for file in matching_files:
-                print(f"Matching file: {file}")
+            print("Warning: Multiple files have the extension. Choosing the first one found.")
+            # for file in matching_files:
+            #     print(f"Matching file: {file}")
         
         # Return the first matching folder or None if no match is found
         if matching_files:
             #print(f"Found and selected file by extension {extension}: {matching_files[0]} ")
+            print(f"Chosen file {matching_files[0]}")
             return matching_files[0]
         else:
             print("No file found with extension {extension}.")
@@ -403,3 +384,37 @@ def update_blade_file_path(drive_dir):
     
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+def transform_moi(x1, y1, z1, x2, y2, z2, Ixx, Iyy, Izz):
+    """ NB! Assuming local y parallel to global Y"""
+    v = np.array([x2 - x1, y2 - y1, z2 - z1])
+    v_mag = np.linalg.norm(v)
+    v_norm = v / v_mag
+    
+    local_x = v_norm
+    local_y = np.array([0, 1, 0])
+    local_z = np.cross(local_x, local_y)
+
+    # Assemble rotation matrix from local to global
+    R = np.vstack([local_x, local_y, local_z]).T
+    
+    I_local_coords = np.array([
+        [Ixx, 0, 0], 
+        [0, Iyy, 0], 
+        [0, 0, Izz]
+                              ])
+
+    I_global_coords = R @ (I_local_coords) @ R.T   # CM midlength
+    
+    return I_global_coords
+
+if __name__ == '__main__':
+
+    # --- INPUT VARIABLES AND CONSTANTS --------------------------------------# 
+    tilt = 6 #degs
+    x1, y1, z1 = 0, 0, 0
+    x2, y2, z2 = -np.cos(tilt), 0, np.sin(tilt)
+    transform_moi(x1, y1, z1, x2, y2, z2, 0, 972877, 972877)
+
+

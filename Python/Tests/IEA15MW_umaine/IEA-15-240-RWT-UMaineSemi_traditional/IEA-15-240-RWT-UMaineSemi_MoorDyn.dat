@@ -7,7 +7,7 @@ Name  Diam  MassDen  EA       BA/-zeta  EI    Cd    Ca    CdAx   CaAx
 main  0.333  685.00  3.27E+09  -1.0      0    2.0   0.82  0.4    0.27
 ---------------------- POINTS --------------------------------                                           
 ID   Attachment      X         Y       Z       M    V    CdA   CA
-(-)  (-)      (m)       (m)     (m)    (kg) (m^3) (m^2) (-)
+(-)  (-)      		(m)       (m)     (m)    (kg) (m^3) (m^2) (-)
 1   Vessel  -58.000    0.000 -14.000     0    0    0    0
 2   Fixed  -837.600    0.000 -200.000    0    0    0    0
 3   Vessel   29.000   50.229 -14.000     0    0    0    0
@@ -34,7 +34,25 @@ FairTen2
 FairTen3                                            
 AnchTen1                                            
 AnchTen2                                            
-AnchTen3                          
+AnchTen3          
+LINE1N1PX
+LINE1N50PX
+LINE2N1PX
+LINE2N50PX
+LINE3N1PX
+LINE3N50PX  
+LINE1N1PY
+LINE1N50PY
+LINE2N1PY
+LINE2N50PY
+LINE3N1PY
+LINE3N50PY  
+LINE1N1PZ
+LINE1N50PZ
+LINE2N1PZ
+LINE2N50PZ
+LINE3N1PZ
+LINE3N50PZ                  
 END                                         
 ------------------------- need this line --------------------------------------                                                                                     
                                             

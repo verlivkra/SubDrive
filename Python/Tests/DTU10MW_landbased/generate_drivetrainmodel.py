@@ -11,7 +11,7 @@ import os
 import sys
 import shutil
 
-drtr_module_path = r'C:\myGitContributions\OpenFAST-drivetrain-modeling\Python'
+drtr_module_path = r'C:\Users\veronlk\OneDrive - NTNU\myGitContributions\SubDrive\Python'
 if drtr_module_path not in sys.path:
     sys.path.append(drtr_module_path)
 import cases, tools
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     tools.create_overwrite_directory(drive_dir)
 
     # Specify extensions to exclude (e.g., '.txt', '.jpg')
-    extensions_to_exclude = ['.exe', '.sum', '.dbg', '.sum.yaml', '.ech']
+    extensions_to_exclude = ['.exe', '.sum', '.dbg', '.sum.yaml', '.ech', '.outb', '.out']
     # Copy files, excluding the specified extensions
     tools.copy_files_exclude_extensions(trad_dir, drive_dir, extensions_to_exclude)
 
@@ -67,9 +67,20 @@ if __name__ == '__main__':
     # ------------- Generate drivetrain model ---------------------
     print("Building drivetrain model....")
     if predefined_case == 'DTU10MW_landbased':
-        cases.landbased(script_dir, 'tower_from_elastodyn', 'straight_beam', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
+        cases.landbased(script_dir, 'tower_from_elastodyn', 'straight_beam', 'DTU10MW_mediumspeed', 'DTU10MW_mediumspeed', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
     elif predefined_case == 'DTU10MW_monopile':
-        cases.monopile(script_dir, 'tower_from_elastodyn', 'straight_beam', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
+        cases.monopile(script_dir, 'tower_from_elastodyn', 'straight_beam', 'DTU10MW_mediumspeed', 'DTU10MW_mediumspeed', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
+    elif predefined_case == 'DTU10MW_floating':
+        cases.floating(script_dir, 'tower_from_elastodyn', 'straight_beam', 'DTU10MW_mediumspeed', 'DTU10MW_mediumspeed', add_nacelle_yaw_inertia= False, add_yaw_br_mass = False)
+    elif predefined_case == 'IEA15MW_floating_WDtower':
+        cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
     elif predefined_case == 'IEA15MW_floating':
-        cases.floating(script_dir, 'tower_from_wisdem', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+        cases.floating(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+    elif predefined_case == 'IEA15MW_floating_towerOnly':
+        cases.floating_towerOnly(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+    elif predefined_case == 'IEA22MW_semi':
+        cases.floating(script_dir, 'tower_from_elastodyn', 'wisdem_directdrive', 'wisdem_directdrive', 'wisdem_directdrive', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+    elif predefined_case == 'shaft_only':
+        cases.monopile_shaft_only(script_dir, 'tower_from_elastodyn', 'none', 'shaft_only', 'shaft_only', add_nacelle_yaw_inertia= True, add_yaw_br_mass = True)
+
 

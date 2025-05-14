@@ -1,0 +1,39 @@
+path_params:
+  FAST_InputFile: DTU_10MW_RWT.fst
+  FAST_directory: ..
+  rotor_performance_filename: Cp_Ct_Cq_10MW.txt
+turbine_params:
+  rotor_inertia: 156243120
+  rated_rotor_speed: 1.0053096491487339
+  v_min: 4.0
+  v_rated: 11.4
+  v_max: 25.0
+  max_pitch_rate: 0.17453292519943295
+  max_torque_rate: 1500000.0
+  rated_power: 10000000.0
+  bld_edgewise_freq: 5.843362335677016
+  bld_flapwise_freq: 3.8327430373795477
+  TSR_operational: 7.5
+controller_params:
+  LoggingLevel: 1
+  F_LPFType: 2
+  F_NotchType: 0
+  IPC_ControlMode: 0
+  VS_ControlMode: 2
+  PC_ControlMode: 1
+  Y_ControlMode: 0
+  SS_Mode: 1
+  WE_Mode: 2
+  PS_Mode: 3
+  SD_Mode: 0
+  Fl_Mode: 0
+  Flp_Mode: 0
+  zeta_pc: 1
+  omega_pc: 0.2
+  zeta_vs: 1.0
+  omega_vs: 0.2
+  vs_minspd: 0.732
+  ss_vsgain: 1
+  ss_pcgain: 0.001
+  ps_percent: 0.8
+  IPC_Ki1p: 100000.0
