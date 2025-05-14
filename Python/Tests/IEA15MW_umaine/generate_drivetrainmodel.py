@@ -37,14 +37,14 @@ if __name__ == '__main__':
     print("")
 
     print("Creating new directory '_drivetrain' and copying files...")
-    trad_fol = tools.find_folder_by_keyword(script_dir, '_traditional')
+    trad_fol = tools.find_folder_by_keyword(script_dir, 'traditional')
     print("------------------")
     print(trad_fol)
     print("------------------")
     trad_dir = os.path.join(script_dir, trad_fol)
 
     # Create new directory
-    drive_fol = trad_fol.replace('_traditional', '_drivetrain')
+    drive_fol = trad_fol.replace('traditional', 'drivetrain')
     print("------------------")
     print(drive_fol)
     print("------------------")
