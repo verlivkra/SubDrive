@@ -2,7 +2,7 @@
 SubDyn        template      - file. Compatible with OpenFAST v3.5.0
 -------------------------- SIMULATION CONTROL ---------------------------------
 True          Echo          - Echo input data to "<rootname>.SD.ech" (flag)
-0.001         SDdeltaT      - Local Integration Step. If "default", the glue-code integration step will be used.
+0.0001        SDdeltaT      - Local Integration Step. If "default", the glue-code integration step will be used.
 3             IntMethod     - Integration Method [1/2/3/4 = RK4/AB4/ABM4/AM2].
 True          SttcSolve     - Solve dynamics about static equilibrium point
 -------------------- FEA and CRAIG-BAMPTON PARAMETERS---------------------------
@@ -19,66 +19,70 @@ True          SttcSolve     - Solve dynamics about static equilibrium point
               0	              0	              0	              0	              0	              0
               0	              0	              0	              0	              0	              0
               0	              0	              0	              0	              0	              0
+------- INITIAL RIGID-BODY POSITION [used only for floating structure with more than one transition pieces] -------
+RBSurge    RBSway     RBHeave    RBRoll     RBPitch    RBYaw
+  (m)        (m)        (m)      (deg)      (deg)      (deg)
+  0.0        0.0        0.0       0.0        0.0        0.0
 ---- STRUCTURE JOINTS: joints connect structure members (~Hydrodyn Input File)---
 47            NJoints       - Number of joints (-)
-JointID         JointXss        JointYss        JointZss        JointType       JointDirX       JointDirY       JointDirZ       JointStiff     
-(-)             (m)             (m)             (m)             (-)             (-)             (-)             (-)             (Nm/rad)       
-              1	            -65	              0	-1.81440000e+01	              1	              0	              0	              0	              0
-              2	 3.25000000e+01	 5.62917000e+01	-1.81440000e+01	              1	              0	              0	              0	              0
-              3	 3.25000000e+01	-5.62917000e+01	-1.81440000e+01	              1	              0	              0	              0	              0
-              4	              0	              0	-1.52493360e+01	              1	              0	              0	              0	              0
-              5	              0	              0	              0	              1	              0	              0	              0	              0
-              6	              0	              0	             15	              1	              0	              0	              0	              0
-              7	              0	              0	 1.92311421e+01	              1	              0	              0	              0	              0
-              8	              0	              0	 2.44152442e+01	              1	              0	              0	              0	              0
-              9	              0	              0	 2.95993463e+01	              1	              0	              0	              0	              0
-             10	              0	              0	 3.47834483e+01	              1	              0	              0	              0	              0
-             11	              0	              0	 3.99675504e+01	              1	              0	              0	              0	              0
-             12	              0	              0	 4.51516525e+01	              1	              0	              0	              0	              0
-             13	              0	              0	 5.03357545e+01	              1	              0	              0	              0	              0
-             14	              0	              0	 5.55198566e+01	              1	              0	              0	              0	              0
-             15	              0	              0	 6.07039587e+01	              1	              0	              0	              0	              0
-             16	              0	              0	 6.58880607e+01	              1	              0	              0	              0	              0
-             17	              0	              0	 7.10721628e+01	              1	              0	              0	              0	              0
-             18	              0	              0	 7.62562649e+01	              1	              0	              0	              0	              0
-             19	              0	              0	 8.14403669e+01	              1	              0	              0	              0	              0
-             20	              0	              0	 8.66244690e+01	              1	              0	              0	              0	              0
-             21	              0	              0	 9.18085711e+01	              1	              0	              0	              0	              0
-             22	              0	              0	 9.69926731e+01	              1	              0	              0	              0	              0
-             23	              0	              0	 1.02176775e+02	              1	              0	              0	              0	              0
-             24	              0	              0	 1.07360877e+02	              1	              0	              0	              0	              0
-             25	              0	              0	 1.12544979e+02	              1	              0	              0	              0	              0
-             26	              0	              0	 1.17729081e+02	              1	              0	              0	              0	              0
-             27	              0	              0	 1.22913183e+02	              1	              0	              0	              0	              0
-             28	              0	              0	 1.28097286e+02	              1	              0	              0	              0	              0
-             29	              0	              0	 1.33281388e+02	              1	              0	              0	              0	              0
-             30	              0	              0	 1.38465490e+02	              1	              0	              0	              0	              0
-             31	              0	              0	 1.43649592e+02	              1	              0	              0	              0	              0
-             32	              0	              0	 1.48833694e+02	              1	              0	              0	              0	              0
-             33	              0	              0	 1.54017796e+02	              1	              0	              0	              0	              0
-             34	              0	              0	 1.59201898e+02	              1	              0	              0	              0	              0
-             35	              0	              0	 1.64386000e+02	              1	              0	              0	              0	              0
-             36	-3.27325119e+00	              0	 1.67659251e+02	              1	              0	              0	              0	              0
-             37	-4.62907622e+00	              0	 1.69015076e+02	              1	              0	              0	              0	              0
-             38	-5.88139176e+00	              0	 1.69146700e+02	              1	              0	              0	              0	              0
-             39	-7.13370731e+00	              0	 1.69278324e+02	              1	              0	              0	              0	              0
-             40	-8.00039192e+00	              0	 1.69369416e+02	              1	              0	              0	              0	              0
-             41	-7.39654600e+00	              0	 1.69305949e+02	              1	              0	              0	              0	              0
-             42	-7.13370731e+00	              0	 1.69278324e+02	              1	              0	              0	              0	              0
-             43	-8.00039192e+00	              0	 1.69369416e+02	              1	              0	              0	              0	              0
-             44	-8.91169998e+00	              0	 1.69465198e+02	              1	              0	              0	              0	              0
-             45	-9.82300804e+00	              0	 1.69560980e+02	              1	              0	              0	              0	              0
-             46	-7.39654600e+00	              0	 1.69305949e+02	              1	              0	              0	              0	              0
-             47	-3.58321181e+00	-5.96782369e-01	 1.67890957e+02	              1	              0	              0	              0	              0
+          JointID        JointXss     JointYss       JointZss     JointType  JointDirX  JointDirY  JointDirZ  JointStiff    ![Coordinates of Member joints in SS-Coordinate System][JointType={1:cantilever, 2:universal joint, 3:revolute joint, 4:spherical joint}]
+            (-)             (m)          (m)            (m)         (-)         (-)        (-)        (-)      (Nm/rad) 
+              1	            -65	              0 -1.81440000e+01      1           0          0          0          0
+              2  3.25000000e+01  5.62917000e+01 -1.81440000e+01      1           0          0          0          0
+              3  3.25000000e+01 -5.62917000e+01 -1.81440000e+01      1           0          0          0          0
+              4               0               0 -1.52493360e+01      1           0          0          0          0
+              5               0               0               0      1           0          0          0          0
+              6               0               0              15      1           0          0          0          0
+              7               0               0  1.92311421e+01      1           0          0          0          0
+              8               0               0  2.44152442e+01      1           0          0          0          0
+              9               0               0  2.95993463e+01      1           0          0          0          0
+             10               0               0  3.47834483e+01      1           0          0          0          0
+             11               0               0  3.99675504e+01      1           0          0          0          0
+             12               0               0  4.51516525e+01      1           0          0          0          0
+             13               0               0  5.03357545e+01      1           0          0          0          0
+             14               0               0  5.55198566e+01      1           0          0          0          0
+             15               0               0  6.07039587e+01      1           0          0          0          0
+             16               0               0  6.58880607e+01      1           0          0          0          0
+             17               0               0  7.10721628e+01      1           0          0          0          0
+             18               0               0  7.62562649e+01      1           0          0          0          0
+             19               0               0  8.14403669e+01      1           0          0          0          0
+             20               0               0  8.66244690e+01      1           0          0          0          0
+             21               0               0  9.18085711e+01      1           0          0          0          0
+             22               0               0  9.69926731e+01      1           0          0          0          0
+             23               0               0  1.02176775e+02      1           0          0          0          0
+             24               0               0  1.07360877e+02      1           0          0          0          0
+             25               0               0  1.12544979e+02      1           0          0          0          0
+             26               0               0  1.17729081e+02      1           0          0          0          0
+             27               0               0  1.22913183e+02      1           0          0          0          0
+             28               0               0  1.28097286e+02      1           0          0          0          0
+             29               0               0  1.33281388e+02      1           0          0          0          0
+             30               0               0  1.38465490e+02      1           0          0          0          0
+             31               0               0  1.43649592e+02      1           0          0          0          0
+             32               0               0  1.48833694e+02      1           0          0          0          0
+             33               0               0  1.54017796e+02      1           0          0          0          0
+             34               0               0  1.59201898e+02      1           0          0          0          0
+             35               0               0  1.64386000e+02      1           0          0          0          0
+             36 -3.27325119e+00               0  1.67659251e+02      1           0          0          0          0
+             37 -4.62907622e+00               0  1.69015076e+02      1           0          0          0          0
+             38 -5.88139176e+00               0  1.69146700e+02      1           0          0          0          0
+             39 -7.13370731e+00               0  1.69278324e+02      1           0          0          0          0
+             40 -8.00039192e+00               0  1.69369416e+02      1           0          0          0          0
+             41 -7.39654600e+00               0  1.69305949e+02      1           0          0          0          0
+             42 -7.13370731e+00               0  1.69278324e+02      1           0          0          0          0
+             43 -8.00039192e+00               0  1.69369416e+02      1           0          0          0          0
+             44 -8.91169998e+00               0  1.69465198e+02      1           0          0          0          0
+             45 -9.82300804e+00               0  1.69560980e+02      1           0          0          0          0
+             46 -7.39654600e+00               0  1.69305949e+02      1           0          0          0          0
+             47 -3.58321181e+00 -5.96782369e-01  1.67890957e+02      1           0          0          0          0
 ------------------- BASE REACTION JOINTS: 1/0 for Locked/Free DOF @ each Reaction Node ---------------------
 0             NReact        - Number of Joints with reaction forces; be sure to remove all rigid motion DOFs of the structure (else det([K])=[0])
 RJointID        RctTDXss        RctTDYss        RctTDZss        RctRDXss        RctRDYss        RctRDZss        SSIfile        
 (-)             (flag)          (flag)          (flag)          (flag)          (flag)          (flag)          (string)       
 ------- INTERFACE JOINTS: 1/0 for Locked (to the TP)/Free DOF @each Interface Joint (only Locked-to-TP implemented thus far (=rigid TP)) ---------
 1             NInterf       - Number of interface joints locked to the Transition Piece (TP): be sure to remove all rigid motion dofs
-IJointID        ItfTDXss        ItfTDYss        ItfTDZss        ItfRDXss        ItfRDYss        ItfRDZss       
-(-)             (flag)          (flag)          (flag)          (flag)          (flag)          (flag)         
-             45	              1	              1	              1	              1	              1	              1
+IJointID     TPID      ItfTDXss    ItfTDYss    ItfTDZss    ItfRDXss    ItfRDYss    ItfRDZss     ![Global Coordinate System]
+  (-)        (-)        (flag)      (flag)      (flag)      (flag)      (flag)      (flag)
+  45	      1           1	              1	              1	              1	              1	              1
 ----------------------------------- MEMBERS --------------------------------------
 47            NMembers      - Number of frame members
 MemberID        MJointID1       MJointID2       MPropSetID1     MPropSetID2     MType           COSMID         
@@ -169,6 +173,10 @@ PropSetID       YoungE          ShearG1          MatDens         XsecD          
              33	   200000000000	  7930000000000	           7850	 2.10000000e+00	 1.00000000e-01
              34	   200000000000	  7930000000000	           7850	 2.10000000e+00	 3.50000000e-02
              35	   205000000000	  8000000000000	           7850	 3.10000000e+00	 2.00000000e-02
+----------------- RECTANGULAR BEAM CROSS-SECTION PROPERTIES ---------------------------
+             0   NPropSets   - Number of structurally unique cross-sections (if 0 the following table is ignored)
+PropSetID     YoungE          ShearG          MatDens          XsecA          XsecB           XsecT
+  (-)         (N/m2)          (N/m2)          (kg/m3)           (m)            (m)             (m)
 ----------------- ARBITRARY BEAM CROSS-SECTION PROPERTIES -----------------------------
 0             NXPropSets    - Number of structurally unique non-circular cross-sections (if 0 the following table is ignored)
 PropSetID       YoungE          ShearG2          MatDens         XsecA           XsecAsx         XsecAsy         XsecJxx         XsecJyy         XsecJ0         

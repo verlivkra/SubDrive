@@ -16,12 +16,12 @@ False         TwFADOF1      - First fore-aft tower bending-mode DOF (flag)
 False         TwFADOF2      - Second fore-aft tower bending-mode DOF (flag)
 False         TwSSDOF1      - First side-to-side tower bending-mode DOF (flag)
 False         TwSSDOF2      - Second side-to-side tower bending-mode DOF (flag)
-False         PtfmSgDOF     - Platform horizontal surge translation DOF (flag)
-False         PtfmSwDOF     - Platform horizontal sway translation DOF (flag)
-False         PtfmHvDOF     - Platform vertical heave translation DOF (flag)
-False         PtfmRDOF      - Platform roll tilt rotation DOF (flag)
-False         PtfmPDOF      - Platform pitch tilt rotation DOF (flag)
-False         PtfmYDOF      - Platform yaw rotation DOF (flag)
+True          PtfmSgDOF     - Platform horizontal surge translation DOF (flag)
+True          PtfmSwDOF     - Platform horizontal sway translation DOF (flag)
+True          PtfmHvDOF     - Platform vertical heave translation DOF (flag)
+True          PtfmRDOF      - Platform roll tilt rotation DOF (flag)
+True          PtfmPDOF      - Platform pitch tilt rotation DOF (flag)
+True          PtfmYDOF      - Platform yaw rotation DOF (flag)
 ---------------------- INITIAL CONDITIONS --------------------------------------
 0.0           OoPDefl       - Initial out-of-plane blade-tip displacement (meters)
 0.0           IPDefl        - Initial in-plane blade-tip deflection (meters)
@@ -66,6 +66,8 @@ False         PtfmYDOF      - Platform yaw rotation DOF (flag)
 0.0           PtfmCMxt      - Downwind distance from the ground level [onshore] or MSL [offshore] to the platform CM (meters)
 0.0           PtfmCMyt      - Lateral distance from the ground level [onshore] or MSL [offshore] to the platform CM (meters)
 168.51        PtfmCMzt      - Vertical distance from the ground level [onshore] or MSL [offshore] to the platform CM (meters)
+0   	      PtfmRefxt   - Downwind distance from the ground level [onshore], MSL [offshore wind or floating MHK], or seabed [fixed MHK] to the platform reference point (meters)
+0   	      PtfmRefyt   - Lateral distance from the ground level [onshore], MSL [offshore wind or floating MHK], or seabed [fixed MHK] to the platform reference point (meters)
 168.51        PtfmRefzt     - Vertical distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
 ---------------------- MASS AND INERTIA ----------------------------------------
 0.0           TipMass(1)    - Tip-brake mass, blade 1 (kg)
@@ -86,9 +88,9 @@ False         PtfmYDOF      - Platform yaw rotation DOF (flag)
 0.0                    PtfmXZIner  - Platform xz moment of inertia about the platform CM (=-int(xzdm)) (kg m^2)
 ---------------------- BLADE ---------------------------------------------------
 50            BldNodes      - Number of blade nodes (per blade) used for analysis (-)
-"../IEA-22-280-RWT/IEA-22-280-RWT_ElastoDyn_blade.dat" BldFile1      - Name of file containing properties for blade 1 (quoted string)
-"../IEA-22-280-RWT/IEA-22-280-RWT_ElastoDyn_blade.dat" BldFile2      - Name of file containing properties for blade 2 (quoted string)
-"../IEA-22-280-RWT/IEA-22-280-RWT_ElastoDyn_blade.dat" BldFile3      - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
+"IEA-22-280-RWT_ElastoDyn_blade.dat" BldFile1      - Name of file containing properties for blade 1 (quoted string)
+"IEA-22-280-RWT_ElastoDyn_blade.dat" BldFile2      - Name of file containing properties for blade 2 (quoted string)
+"IEA-22-280-RWT_ElastoDyn_blade.dat" BldFile3      - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
 ---------------------- ROTOR-TEETER --------------------------------------------
 0             TeetMod       - Rotor-teeter spring/damper model {0: none, 1: standard, 2: user-defined from routine UserTeet} (switch) [unused for 3 blades]
 0.0           TeetDmpP      - Rotor-teeter damper position (degrees) [used only for 2 blades and when TeetMod=1]
@@ -99,10 +101,16 @@ False         PtfmYDOF      - Platform yaw rotation DOF (flag)
 0.0           TeetSSSp      - Rotor-teeter soft-stop linear-spring constant (N-m/rad) [used only for 2 blades and when TeetMod=1]
 0.0           TeetHSSp      - Rotor-teeter hard-stop linear-spring constant (N-m/rad) [used only for 2 blades and when TeetMod=1]
 ---------------------- YAW-FRICTION --------------------------------------------
-0                      YawFrctMod  - Yaw-friction model {0: none, 1: friction without Fz term at the yaw bearing, 2: friction includes Fz term at yaw bearing, 3: user defined model} (switch)
-300.0                  M_CSmax     - Maximum Coulomb friction torque (N-m)[mu_s*D_eff when YawFrctMod=1 and Fz*mu_s*D_eff when YawFrctMod=2]
-40.0                   M_CD        - Dynamic friction moment at null yaw rate (N-m) [mu_d*D_eff when YawFrctMod=1 and Fz*mu_d*D_eff when YawFrctMod=2]
-0.0                    sig_v       - Viscous friction coefficient (N-m/(rad/s))
+          0   YawFrctMod  - Yaw-friction model {0: none, 1: friction independent of yaw-bearing force and bending moment, 2: friction with Coulomb terms depending on yaw-bearing force and bending moment, 3: user defined model} (switch)
+        300   M_CSmax     - Maximum static Coulomb friction torque (N-m) [M_CSmax when YawFrctMod=1; |Fz|*M_CSmax when YawFrctMod=2 and Fz<0]
+          0   M_FCSmax    - Maximum static Coulomb friction torque proportional to yaw bearing shear force (N-m) [sqrt(Fx^2+Fy^2)*M_FCSmax; only used when YawFrctMod=2]
+          0   M_MCSmax    - Maximum static Coulomb friction torque proportional to yaw bearing bending moment (N-m) [sqrt(Mx^2+My^2)*M_MCSmax; only used when YawFrctMod=2]
+         40   M_CD        - Dynamic Coulomb friction moment (N-m) [M_CD when YawFrctMod=1; |Fz|*M_CD when YawFrctMod=2 and Fz<0]
+          0   M_FCD       - Dynamic Coulomb friction moment proportional to yaw bearing shear force (N-m) [sqrt(Fx^2+Fy^2)*M_FCD; only used when YawFrctMod=2]
+          0   M_MCD       - Dynamic Coulomb friction moment proportional to yaw bearing bending moment (N-m) [sqrt(Mx^2+My^2)*M_MCD; only used when YawFrctMod=2]
+          0   sig_v       - Linear viscous friction coefficient (N-m/(rad/s))
+          0   sig_v2      - Quadratic viscous friction coefficient (N-m/(rad/s)^2)
+          0   OmgCut      - Yaw angular velocity cutoff below which viscous friction is linearized (rad/s)
 ---------------------- DRIVETRAIN ----------------------------------------------
 100.0         GBoxEff       - Gearbox efficiency (%)
 1.0           GBRatio       - Gearbox ratio (-)
@@ -133,6 +141,8 @@ True          TabDelim      - Use tab delimiters in text tabular output file? (f
 "GenSpeed"
 "LSSGagMya"
 "LSSGagMza"
+"LSSGagMys"
+"LSSGagMzs"
 "LSSTipMys"
 "LSSTipMzs"
 "LSShftFys"
