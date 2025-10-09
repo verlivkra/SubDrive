@@ -107,17 +107,17 @@ class Model:
         self.sdPath = os.path.join(self.mainPath, sdFile)
         self.sd = FASTInputFile(self.sdPath)
             
-        if self.fst['HydroFile'].lower() != '"unused"': 
+        if self.fst['HydroFile'].lower() not in ['"unused"', '"none"', '""']: 
             hdFile = self.fst['HydroFile'][1:-1]
             self.hdPath = os.path.join(self.mainPath, hdFile)
             self.hd = FASTInputFile(self.hdPath)
             
-        if self.fst['MooringFile'].lower() != '"unused"':  #Used to find connection points
+        if self.fst['MooringFile'].lower() not in ['"unused"', '"none"', '""']:  #Used to find connection points
             mdFile = self.fst['MooringFile'][1:-1]
             self.mdPath = os.path.join(self.mainPath, mdFile)
             self.md = FASTInputFile(self.mdPath)
 
-        if self.fst['InflowFile'].lower() != '"unused"':            
+        if self.fst['InflowFile'].lower() not in ['"unused"', '"none"', '""']:            
             iwFile = self.fst['InflowFile'][1:-1]
             self.iwPath = os.path.join(self.mainPath, iwFile)
             self.iw = FASTInputFile(self.iwPath)
