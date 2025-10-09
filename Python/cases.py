@@ -51,7 +51,28 @@ def monopile(script_dir, tower_type, bedplate_type, shaft_type, mb_type, add_nac
     mymodel.buildShaft(shaft_type = shaft_type)
     mymodel.buildMainBearing(MB1or2 = 'MB1', mb_type = mb_type)
     mymodel.buildMainBearing(MB1or2 = 'MB2', mb_type = mb_type)
-    mymodel.buildGBox()
+    
+    if mb_type == 'DTU10MW_mediumspeed':
+        mymodel.buildGBox()
+
+    mymodel.nacMassIner(add_nacelle_yaw_inertia = add_nacelle_yaw_inertia, add_yaw_br_mass = add_yaw_br_mass) 
+    mymodel.outputs()
+    mymodel.writeModel()
+    mymodel.writeJSON()
+
+def monopile_towerOnly(script_dir, tower_type, bedplate_type, shaft_type, mb_type, add_nacelle_yaw_inertia = False, add_yaw_br_mass = False):
+    mymodel = build.Model(script_dir, platform_type='monopile', interface_location='shaft')
+    mymodel.timeStep()
+    mymodel.monoPile()
+    mymodel.buildTower(tower_type = tower_type)
+    # mymodel.buildBedplate(bedplate_type = bedplate_type)
+    # mymodel.buildShaft(shaft_type = shaft_type)
+    # mymodel.buildMainBearing(MB1or2 = 'MB1', mb_type = mb_type)
+    # mymodel.buildMainBearing(MB1or2 = 'MB2', mb_type = mb_type)
+    
+    # if mb_type == 'DTU10MW_mediumspeed':
+    #     mymodel.buildGBox()
+
     mymodel.nacMassIner(add_nacelle_yaw_inertia = add_nacelle_yaw_inertia, add_yaw_br_mass = add_yaw_br_mass) 
     mymodel.outputs()
     mymodel.writeModel()
