@@ -453,7 +453,7 @@ class Tower:
 
 def SD_beta_from_ED_damp(natfreq_system, damp_system): #0.35 for IEA 15 MW (first estimate)
     """ Calculates Rayleigh stiffness proportional damping coefficient, beta, based on system natural frequency (typically 1st FA tower) and ElastoDyn input. """
-    beta = np.round(damp_system/(np.pi*natfreq_system), 4)
+    beta = np.round(damp_system/(np.pi*natfreq_system), 5)
     return beta
 
 def manualShaftBeamProp():
