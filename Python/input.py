@@ -92,6 +92,11 @@ class InputParameters():
         # Time step and simulation duration
         self.TMax   = float(gen_inp['TMax'])
         self.DT_fst = float(gen_inp['DT_fst'])
+        
+        try: 
+            self.NumCrctn = int(gen_inp['NumCrctn'])
+        except: 
+            self.NumCrctn = 1
         self.DT_sd  = float(gen_inp['DT_sd'])
         
         # Input to ElastoDyn
@@ -99,9 +104,9 @@ class InputParameters():
         
         # Damping and modes
         self.DTTorDmp   = float(gen_inp['DTTorDmp'])
-        self.CBDamp = list(gen_inp['CBDamp'])
-        self.NModes = int(gen_inp['NModes'])
-        self.NDiv = int(gen_inp['NDiv'])
+        self.CBDamp     = list(gen_inp['CBDamp'])
+        self.NModes     = int(gen_inp['NModes'])
+        self.NDiv       = int(gen_inp['NDiv'])
         system_1twr_freq = float(gen_inp['system_1twr_freq']) if gen_inp['system_1twr_freq'] != 'None' else None
         system_1twr_damp = float(gen_inp['system_1twr_damp']) if gen_inp['system_1twr_damp'] != 'None'else None
 
