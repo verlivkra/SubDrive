@@ -1,10 +1,11 @@
 #--------------Time step and duration-------------------------
 # Glue-code time step. Applied to .fst, HydroDyn and ElastoDyn
-DT_fst: 0.0025   #[s]
+DT_fst: 0.00125     #[s]
 # SubDyn time step. 
-DT_sd : 0.0025   #[s]
+DT_sd : 0.00125     #[s]
 # Simulation time. 
-TMax: 1500       #[s]
+TMax: 1500          #[s]
+NumCrctn: 0         # Typically 1 for floating
 #--------------ElastoDyn input--------------------------------
 # Platform roll inertia needed to counteract rotor inertia in ElastoDyn
 PtfmRIner: 20000000 #[kg m^2]
@@ -13,7 +14,7 @@ DTTorDmp: False  #[N-m/(rad/s)]
 #--------------SubDyn input------------------------------------
 # Damping Ratios for each retained mode (% of critical), same as "JDampings" in SubDyn. (last entered value will be used for all remaining modes).
 CBDamp: [0.5] #list [-]
-NModes: 16              #[-]
+NModes: 20              #[-]
 NDiv: 1
 # Mass and stiffness proportional damping coefficients (Rayleigh Damping). 
 # If set to "Calculate", will be calculated based on ElastoDyn tower stiffness proportional damping in traditional model, and user input on tower system freq and damping
