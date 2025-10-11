@@ -83,6 +83,9 @@ class Model:
         file_manager = input.FilePaths(self.work_dir)
         # Reading user-defined input parameters
         self.inputs = input.InputParameters(self.work_dir)
+        print("--------------------")
+        print(self.inputs.NumCrctn)
+        print("--------------------")
 
         # Traditional OpenFAST-files - used as template and provides general input about the turbine
         self.baseF = input.BaseFiles(file_manager.file_paths)
@@ -139,6 +142,7 @@ class Model:
         
         self.fst['TMax'] = self.inputs.TMax
         self.fst['DT'] = self.inputs.DT_fst
+        self.fst['NumCrctn'] = self.inputs.NumCrctn
         self.ed['DT'] = self.inputs.DT_fst
         self.sd['SDdeltaT'] = self.inputs.DT_sd  
         
@@ -1550,6 +1554,12 @@ class Model:
             self.memOutDict['PileBas'] = {}
             self.memOutDict['PileBas']['memCount'] = [memOut_count]
             self.memOutDict['PileBas']['ID'] = self.pileBsMemID
+            #--------Tower Base Member--------#
+            self.sd['MemberOuts'].append(np.array([self.twrBasMemID, 2, 1, self.end_node])) #Tower base member with two nodes
+            memOut_count += 1
+            self.memOutDict['TwrBas'] = {}
+            self.memOutDict['TwrBas']['memCount'] = [memOut_count]
+            self.memOutDict['TwrBas']['ID'] = self.twrBasMemID
 
         elif self.platformType == 'floating':
             #--------Platform COG--------#
@@ -1713,6 +1723,7 @@ class Model:
                         }
             sdoutlist.append(tempdict)
         
+        print(sdoutlist)
         if not self.floatingPlatform:
             sdoutlist.append({'value': '"ReactFXss, ReactFYss, ReactFZss, ReactMXss, ReactMYss, ReactMZss" \t\t - Base moments and forces for bottom-fixed/landbased.', 'label': '', 'isComment': True, 'descr': '', 'tabType': 0},)
         
@@ -1834,7 +1845,7 @@ class Model:
         """Update .fst-file"""
         #Turn on SubDyn calculation in FAST-file
         self.fst['CompSub'] = 1
-        self.fst['NumCrctn'] = 1 
+        # self.fst['NumCrctn'] = 1 
         self.fst['DT_Out'] = 'default'
             
         self.fst.write(self.mainF.FstPath) 
